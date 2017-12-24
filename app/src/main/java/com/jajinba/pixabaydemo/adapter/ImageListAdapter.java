@@ -32,8 +32,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
   @Override
   public void onBindViewHolder(ViewHolder holder, int position) {
     if (mFragment.isFragmentValid() && ArrayUtils.getLengthSafe(mImageList) > position) {
-      //holder.setText(R.id.title_tv, mImageList.get(position).getPreviewUrl());
-
       Glide.with(mFragment)
           .load(mImageList.get(position).getWebformatUrl())
           .placeholder(R.drawable.placeholder)

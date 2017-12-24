@@ -19,7 +19,22 @@ public class MainActivityPresenter {
   private static final String API_KEY = "key";
   private static final String API_KEYWORD = "q";
 
+  public interface Callback {
+    void searchStart();
+    void searchDone();
+  }
+
+  private Callback mCallback;
+
+  public MainActivityPresenter(Callback callback) {
+    mCallback = callback;
+  }
+
   public void onSearchClick(final @NonNull String keyword) {
+    if (mCallback != null) {
+      mCallback.searchStart();
+    }
+
     new Thread(new Runnable() {
       @Override
       public void run() {
@@ -52,11 +67,19 @@ public class MainActivityPresenter {
       } catch (ClassCastException e) {
         Log.e(TAG, "ClassCastException msg " + e.getMessage());
       }
+
+      if (mCallback != null) {
+        mCallback.searchDone();
+      }
     }
 
     @Override
     public void onFailure(String errorMsg) {
       Log.e(TAG, "error msg: " + errorMsg);
+
+      if (mCallback != null) {
+        mCallback.searchDone();
+      }
     }
   };
 
