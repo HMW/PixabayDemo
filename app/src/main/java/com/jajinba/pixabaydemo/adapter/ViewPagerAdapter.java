@@ -1,4 +1,4 @@
-package com.jajinba.pixabaydemo.view;
+package com.jajinba.pixabaydemo.adapter;
 
 
 import android.support.v4.app.Fragment;

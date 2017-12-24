@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.jajinba.pixabaydemo.network.ApiClient;
 import com.jajinba.pixabaydemo.network.listener.ResponseListener;
-import com.jajinba.pixabaydemo.view.ViewPagerAdapter;
+import com.jajinba.pixabaydemo.adapter.ViewPagerAdapter;
 import com.jajinba.pixabaydemo.view.fragment.DummyFragment;
 
 import java.util.ArrayList;

@@ -105,10 +105,9 @@ public class ApiClient {
     return apiCall(filtersMap, responseListener);
   }
 
+  // FIXME query with page & per_page
   private UUID apiCall(@NonNull final HashMap<String, String> filtersMap,
                        final ResponseListener<PixabayResponseObject> responseListener) {
-    // FIXME remove key after test
-    //Call<PixabayResponseObject> call = mApiService.searchImages("7486024-feb89a76e79a6ce60b46eeee7", "yellow+flowers");
     Call<PixabayResponseObject> call = mApiService.searchImages(filtersMap);
     final UUID uuid = addCallToMap(call);
     SimpleServiceCallback<PixabayResponseObject> callback =
