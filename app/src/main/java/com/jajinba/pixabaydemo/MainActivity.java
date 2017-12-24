@@ -48,6 +48,13 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initView() {
+    // TODO initial state ui
+    // TODO empty state ui
+    // TODO search history
+    // TODO device rotation
+    // TODO error handling, e.g., no network
+
+
     mPresenter = new MainActivityPresenter(mCallback);
 
     List<Fragment> fragmentList = new ArrayList<>();
