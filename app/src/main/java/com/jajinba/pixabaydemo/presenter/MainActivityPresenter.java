@@ -26,27 +26,35 @@ public class MainActivityPresenter {
   }
 
   private Callback mCallback;
+  private String mSearchKeyword = "";
 
   public MainActivityPresenter(Callback callback) {
     mCallback = callback;
   }
 
   public void onSearchClick(final @NonNull String keyword) {
-    if (mCallback != null) {
-      mCallback.searchStart();
-    }
-
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        HashMap<String, String> filterMap = new HashMap<>();
-        filterMap.put(API_KEY, "7486024-feb89a76e79a6ce60b46eeee7");// FIXME replace with key
-        filterMap.put(API_KEYWORD, formatSearchKeyword(keyword));
-
-        Log.d(TAG, "Search image with keyword: " + formatSearchKeyword(keyword));
-        ApiClient.getInstance().getImages(filterMap, responseListener);
+    if (ImageManager.getInstance().hasKeywordSearchBefore(keyword)) {
+      Log.d(TAG, "Keyword been search before, use previous list instead");
+      ImageManager.getInstance().setImageListWithKeyword(keyword);
+    } else {
+      if (mCallback != null) {
+        mCallback.searchStart();
       }
-    }).start();
+
+      new Thread(new Runnable() {
+        @Override
+        public void run() {
+          mSearchKeyword = keyword;
+
+          HashMap<String, String> filterMap = new HashMap<>();
+          filterMap.put(API_KEY, "7486024-feb89a76e79a6ce60b46eeee7");// FIXME replace with key
+          filterMap.put(API_KEYWORD, formatSearchKeyword(keyword));
+
+          Log.d(TAG, "Search image with keyword: " + formatSearchKeyword(keyword));
+          ApiClient.getInstance().getImages(filterMap, responseListener);
+        }
+      }).start();
+    }
   }
 
   private ResponseListener responseListener = new ResponseListener() {
@@ -61,7 +69,11 @@ public class MainActivityPresenter {
           Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(
               ((PixabayResponseObject) object).getHits()) + " images");
 
-          ImageManager.getInstance().setImageList(((PixabayResponseObject) object).getHits());
+          ImageManager.getInstance().setImageList(
+              mSearchKeyword,
+              ((PixabayResponseObject) object).getHits());
+
+          mSearchKeyword = "";
         } else {
           Log.e(TAG, "Received empty image list");
         }

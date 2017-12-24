@@ -1,16 +1,19 @@
 package com.jajinba.pixabaydemo.model;
 
 
-import android.support.annotation.Nullable;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 
 public class ImageManager extends Observable {
   private static final ImageManager ourInstance = new ImageManager();
 
   private List<PixabayImageObject> mImageList;
+  private Map<String, List<PixabayImageObject>> mKeywordToImageListMap;
 
   public static ImageManager getInstance() {
     return ourInstance;
@@ -18,18 +21,36 @@ public class ImageManager extends Observable {
 
   private ImageManager() {
     mImageList = new ArrayList<>();
+    mKeywordToImageListMap = new HashMap<>();
   }
 
-  public void setImageList(List<PixabayImageObject> imageList) {
+  private void setImageList(List<PixabayImageObject> imageList) {
     mImageList = imageList;
 
     setChanged();
     notifyObservers();
   }
 
-  @Nullable
+  public void setImageList(String key, List<PixabayImageObject> imageList) {
+    setImageList(imageList);
+
+    mKeywordToImageListMap.put(key, imageList);
+  }
+
   public List<PixabayImageObject> getImageList() {
-    return mImageList;
+    return mImageList == null ? new ArrayList<PixabayImageObject>() : mImageList;
+  }
+
+  public boolean hasKeywordSearchBefore(String keyword) {
+    return mKeywordToImageListMap.containsKey(keyword);
+  }
+
+  public void setImageListWithKeyword(String keyword) {
+    if (TextUtils.isEmpty(keyword)) {
+      return;
+    }
+
+    setImageList(mKeywordToImageListMap.get(keyword));
   }
 
 }
