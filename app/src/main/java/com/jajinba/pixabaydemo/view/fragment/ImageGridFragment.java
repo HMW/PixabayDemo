@@ -12,6 +12,7 @@ import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.presenter.ListPresenter;
+import com.jajinba.pixabaydemo.utils.ArrayUtils;
 
 import java.util.List;
 
@@ -28,10 +29,10 @@ public class ImageGridFragment extends BaseFragment {
 
   private ListPresenter.Callback mCallback = new ListPresenter.Callback() {
     @Override
-    public void imageReceived(List<PixabayImageObject> imageList) {
+    public void updateImageList(List<PixabayImageObject> imageList) {
       // FIXME check is attached?
       if (isFragmentValid()) {
-        Log.d(TAG, "ImageListFragment imageReceived");
+        Log.d(TAG, "ImageListFragment " + ArrayUtils.getLengthSafe(imageList) + "image received");
 
         // FIXME extract ImageListAdapter & LinearLayoutManager as member variable
         mRecyclerView.setAdapter(new ImageListAdapter(ImageGridFragment.this, imageList));
@@ -57,10 +58,5 @@ public class ImageGridFragment extends BaseFragment {
     if (mPresenter == null) {
       mPresenter = new ListPresenter(mCallback);
     }
-
-    mPresenter.onViewCreated();
-
-    // TODO check has cached image list in ImageManager
-    // TODO check the cached image list's key word
   }
 }

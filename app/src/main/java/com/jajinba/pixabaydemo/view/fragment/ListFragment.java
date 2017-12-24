@@ -15,7 +15,7 @@ public abstract class ListFragment extends BaseFragment {
 
   private ListPresenter.Callback mCallback = new ListPresenter.Callback() {
     @Override
-    public void imageReceived(List<PixabayImageObject> imageList) {
+    public void updateImageList(List<PixabayImageObject> imageList) {
 
     }
   };
