@@ -36,7 +36,9 @@ public abstract class BaseFragment extends Fragment {
    * avoid duplicate all the inflate code in every fragment. You only have to return the layout to
    * inflate in this method when extends BaseFragment.
    */
-  protected abstract @LayoutRes int getContentLayout();
+  protected abstract
+  @LayoutRes
+  int getContentLayout();
 
   /**
    * Replace every field annotated with ButterKnife annotations like @InjectView with the proper

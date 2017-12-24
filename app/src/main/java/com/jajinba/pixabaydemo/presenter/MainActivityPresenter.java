@@ -21,6 +21,7 @@ public class MainActivityPresenter {
 
   public interface Callback {
     void searchStart();
+
     void searchDone();
   }
 

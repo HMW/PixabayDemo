@@ -52,7 +52,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
    * Get {@link View} with resource id
    *
    * @param viewId target {@link View}'s resource id
-   * @param <T> {@link View} class type
+   * @param <T>    {@link View} class type
    * @return target {@link View}
    */
   public <T extends View> T getView(@IdRes int viewId) {
@@ -68,7 +68,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
    * Set text on target {@link View}
    *
    * @param viewId target {@link View}'s resource id
-   * @param text text to set
+   * @param text   text to set
    * @return {@link ViewHolder}
    */
   public ViewHolder setText(@IdRes int viewId, CharSequence text) {
