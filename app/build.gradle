@@ -35,6 +35,13 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 
+    // Retrofit
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+
+    // gson
+    compile 'com.google.code.gson:gson:2.8.2'
+
     // test
     testCompile 'junit:junit:4.12'
 }
