@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.jajinba.pixabaydemo.adapter.ViewPagerAdapter;
-import com.jajinba.pixabaydemo.view.fragment.DummyFragment;
+import com.jajinba.pixabaydemo.view.fragment.ImageGridFragment;
 import com.jajinba.pixabaydemo.view.fragment.ImageListFragment;
 
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     // FIXME remove after test
     List<Fragment> fragmentList = new ArrayList<>();
     fragmentList.add(ImageListFragment.newInstance());
-    fragmentList.add(new DummyFragment());
+    fragmentList.add(ImageGridFragment.newInstance());
 
     // setup ViewPager
     ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(),

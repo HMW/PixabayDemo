@@ -2,20 +2,25 @@ package com.jajinba.pixabaydemo.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
 import com.jajinba.pixabaydemo.view.ViewHolder;
+import com.jajinba.pixabaydemo.view.fragment.BaseFragment;
 
 import java.util.List;
 
 
 public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
+  private BaseFragment mFragment;
   private List<PixabayImageObject> mImageList;
 
-  public ImageListAdapter(List<PixabayImageObject> imageList) {
+  public ImageListAdapter(BaseFragment fragment, List<PixabayImageObject> imageList) {
+    mFragment = fragment;
     mImageList = imageList;
   }
 
@@ -26,8 +31,14 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
   @Override
   public void onBindViewHolder(ViewHolder holder, int position) {
-    if (ArrayUtils.getLengthSafe(mImageList) > position) {
-      holder.setText(R.id.title_tv, mImageList.get(position).getPreviewUrl());
+    if (mFragment.isFragmentValid() && ArrayUtils.getLengthSafe(mImageList) > position) {
+      //holder.setText(R.id.title_tv, mImageList.get(position).getPreviewUrl());
+
+      Glide.with(mFragment)
+          .load(mImageList.get(position).getWebformatUrl())
+          .placeholder(R.drawable.placeholder)
+          .crossFade()
+          .into((ImageView) holder.getView(R.id.image_view));
     }
   }
 

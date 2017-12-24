@@ -3,8 +3,8 @@ package com.jajinba.pixabaydemo.view.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.View;
 
@@ -17,9 +17,9 @@ import java.util.List;
 
 import butterknife.BindView;
 
-public class ImageListFragment extends ListFragment {
+public class ImageGridFragment extends BaseFragment {
 
-  private static final String TAG = ImageListFragment.class.getSimpleName();
+  private static final String TAG = ImageGridFragment.class.getSimpleName();
 
   @BindView(R.id.recycler_view)
   RecyclerView mRecyclerView;
@@ -34,14 +34,15 @@ public class ImageListFragment extends ListFragment {
         Log.d(TAG, "ImageListFragment imageReceived");
 
         // FIXME extract ImageListAdapter & LinearLayoutManager as member variable
-        mRecyclerView.setAdapter(new ImageListAdapter(ImageListFragment.this, imageList));
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerView.setAdapter(new ImageListAdapter(ImageGridFragment.this, imageList));
+        mRecyclerView.setLayoutManager(
+            new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
       }
     }
   };
 
-  public static ImageListFragment newInstance() {
-    return new ImageListFragment();
+  public static ImageGridFragment newInstance() {
+    return new ImageGridFragment();
   }
 
   @Override

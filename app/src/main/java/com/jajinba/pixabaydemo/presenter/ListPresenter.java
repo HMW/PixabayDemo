@@ -1,6 +1,5 @@
 package com.jajinba.pixabaydemo.presenter;
 
-
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -38,6 +37,7 @@ public class ListPresenter {
         filterMap.put("key", "7486024-feb89a76e79a6ce60b46eeee7");// FIXME replace with key
         filterMap.put("q", "yellow+flower");
 
+        Log.e(TAG, "Presenter trigger api ");
         ApiClient.getInstance().getImages(filterMap, responseListener);
       }
     }).start();
