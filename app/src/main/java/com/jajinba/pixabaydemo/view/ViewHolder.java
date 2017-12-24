@@ -22,6 +22,10 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 
   private SparseArray<View> mViews;
 
+  public ViewHolder(@LayoutRes int itemLayoutId, ViewGroup parent) {
+    this(itemLayoutId, parent, null, null);
+  }
+
   public ViewHolder(View itemView, ViewGroup parent, OnRecyclerViewItemClickListener clickListener,
                     OnRecyclerViewItemLongClickListener longClickListener) {
     super(itemView);
