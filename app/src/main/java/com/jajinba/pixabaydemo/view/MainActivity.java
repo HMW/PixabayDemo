@@ -1,5 +1,6 @@
 package com.jajinba.pixabaydemo.view;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -9,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
@@ -73,12 +75,15 @@ public class MainActivity extends AppCompatActivity {
     if (TextUtils.isEmpty(mSearchEditText.getText().toString()) == false) {
       mPresenter.onSearchClick(mSearchEditText.getText().toString());
 
-      // TODO hide keyboard after search
+      // hide keyboard after search
+      InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
     }
   }
 
   public void showErrorDialogWithMsg(String errorMsg) {
     if (this.isFinishing() == false) {
+      // TODO should create a custom dialog helper class
       new AlertDialog.Builder(this)
           .setMessage(errorMsg)
           .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
