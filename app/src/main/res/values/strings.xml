@@ -4,7 +4,9 @@
     <string name="tab_title_list">List</string>
     <string name="tab_title_grid">Grid</string>
 
-    <string name="search_et_hint">Image keywords</string>
+    <string name="empty_state_notice">Empty state msg</string>
+
+    <string name="search_et_hint">Search with keyword</string>
     <string name="search_btn_title">Search</string>
 
 </resources>

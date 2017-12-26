@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
@@ -19,6 +20,8 @@ public abstract class ListFragment extends BaseFragment {
 
   private static final String TAG = ListFragment.class.getSimpleName();
 
+  @BindView(R.id.empty_state_tv)
+  TextView mEmptyStateTextView;
   @BindView(R.id.recycler_view)
   RecyclerView mRecyclerView;
 
@@ -32,7 +35,11 @@ public abstract class ListFragment extends BaseFragment {
 
       // FIXME check is attached?
       if (isFragmentValid()) {
-        Log.d(TAG, ArrayUtils.getLengthSafe(imageList) + "image received");
+        int imageCount = ArrayUtils.getLengthSafe(imageList);
+        Log.d(TAG, imageCount + "image received");
+
+        mEmptyStateTextView.setVisibility(imageCount > 0 ? View.GONE : View.VISIBLE);
+        mRecyclerView.setVisibility(imageCount > 0 ? View.VISIBLE : View.GONE);
 
         mRecyclerView.setAdapter(getAdapter());
         mRecyclerView.setLayoutManager(getLayoutManager());
