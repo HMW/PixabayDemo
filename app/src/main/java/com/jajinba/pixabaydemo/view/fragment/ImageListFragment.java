@@ -7,12 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
 
-import butterknife.BindView;
-
 public class ImageListFragment extends ListFragment {
-
-  @BindView(R.id.recycler_view)
-  RecyclerView mRecyclerView;
 
   private ImageListAdapter mAdapter;
   private RecyclerView.LayoutManager mLayoutManager;
