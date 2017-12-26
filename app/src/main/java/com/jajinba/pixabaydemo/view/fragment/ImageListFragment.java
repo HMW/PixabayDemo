@@ -28,7 +28,7 @@ public class ImageListFragment extends ListFragment {
 
   @Override
   protected RecyclerView.LayoutManager getLayoutManager() {
-    return getMemberLayoutManater();
+    return getMemberLayoutManager();
   }
 
   @Override
@@ -44,7 +44,7 @@ public class ImageListFragment extends ListFragment {
     return mAdapter;
   }
 
-  private RecyclerView.LayoutManager getMemberLayoutManater() {
+  private RecyclerView.LayoutManager getMemberLayoutManager() {
     if (mLayoutManager == null) {
       mLayoutManager = new LinearLayoutManager(getContext());
     }
