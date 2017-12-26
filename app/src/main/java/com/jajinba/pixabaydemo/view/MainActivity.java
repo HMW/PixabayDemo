@@ -1,9 +1,11 @@
 package com.jajinba.pixabaydemo.view;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -70,6 +72,21 @@ public class MainActivity extends AppCompatActivity {
   public void search() {
     if (TextUtils.isEmpty(mSearchEditText.getText().toString()) == false) {
       mPresenter.onSearchClick(mSearchEditText.getText().toString());
+
+      // TODO hide keyboard after search
+    }
+  }
+
+  public void showErrorDialogWithMsg(String errorMsg) {
+    if (this.isFinishing() == false) {
+      new AlertDialog.Builder(this)
+          .setMessage(errorMsg)
+          .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+              // do nothing
+            }
+          }).create().show();
     }
   }
 
@@ -82,6 +99,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void searchDone() {
       mProgressBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showErrorDialog(String errorMsg) {
+      showErrorDialogWithMsg(errorMsg);
     }
   };
 }

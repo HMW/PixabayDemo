@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.MainApplication;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.ImageManager;
@@ -25,6 +26,8 @@ public class MainActivityPresenter {
     void searchStart();
 
     void searchDone();
+
+    void showErrorDialog(String errorMsg);
   }
 
   private Callback mCallback;
@@ -67,6 +70,10 @@ public class MainActivityPresenter {
         Log.e(TAG, "Response null");
       }
 
+      if (mCallback != null) {
+        mCallback.searchDone();
+      }
+
       try {
         if (ArrayUtils.isNotEmpty(((PixabayResponseObject) object).getHits())) {
           Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(
@@ -78,14 +85,15 @@ public class MainActivityPresenter {
 
           mSearchKeyword = "";
         } else {
-          Log.e(TAG, "Received empty image list");
+          Log.d(TAG, "Received empty image list");
+
+          if (mCallback != null) {
+            mCallback.showErrorDialog(MainApplication.getInstance().getString(
+                R.string.no_image_found));
+          }
         }
       } catch (ClassCastException e) {
         Log.e(TAG, "ClassCastException msg " + e.getMessage());
-      }
-
-      if (mCallback != null) {
-        mCallback.searchDone();
       }
     }
 
@@ -95,6 +103,11 @@ public class MainActivityPresenter {
 
       if (mCallback != null) {
         mCallback.searchDone();
+
+        if (errorMsg.contains(Constants.FAIL_TO_CONNECT_TO_SERVER)) {
+          mCallback.showErrorDialog(MainApplication.getInstance().getString(
+              R.string.connect_to_server_fail));
+        }
       }
     }
   };
