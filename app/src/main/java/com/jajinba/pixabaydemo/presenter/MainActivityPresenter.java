@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.jajinba.pixabaydemo.MainApplication;
+import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.ImageManager;
 import com.jajinba.pixabaydemo.model.PixabayResponseObject;
 import com.jajinba.pixabaydemo.network.ApiClient;
@@ -41,13 +43,14 @@ public class MainActivityPresenter {
         mCallback.searchStart();
       }
 
+      // TODO handle all api query together, maybe a Handler and a HandlerThread
       new Thread(new Runnable() {
         @Override
         public void run() {
           mSearchKeyword = keyword;
 
           HashMap<String, String> filterMap = new HashMap<>();
-          filterMap.put(API_KEY, "7486024-feb89a76e79a6ce60b46eeee7");// FIXME replace with key
+          filterMap.put(API_KEY, MainApplication.getInstance().getString(R.string.pixabay_api_key));
           filterMap.put(API_KEYWORD, formatSearchKeyword(keyword));
 
           Log.d(TAG, "Search image with keyword: " + formatSearchKeyword(keyword));
