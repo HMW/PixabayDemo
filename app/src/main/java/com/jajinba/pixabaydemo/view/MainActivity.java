@@ -1,4 +1,4 @@
-package com.jajinba.pixabaydemo;
+package com.jajinba.pixabaydemo.view;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ViewPagerAdapter;
 import com.jajinba.pixabaydemo.presenter.MainActivityPresenter;
 import com.jajinba.pixabaydemo.view.fragment.ImageGridFragment;
@@ -48,12 +49,7 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void initView() {
-    // TODO initial state ui
-    // TODO empty state ui
-    // TODO search history
-    // TODO device rotation
     // TODO error handling, e.g., no network
-
 
     mPresenter = new MainActivityPresenter(mCallback);
 

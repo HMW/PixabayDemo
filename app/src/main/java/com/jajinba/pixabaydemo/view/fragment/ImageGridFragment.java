@@ -14,22 +14,41 @@ public class ImageGridFragment extends ListFragment {
   @BindView(R.id.recycler_view)
   RecyclerView mRecyclerView;
 
+  private ImageListAdapter mAdapter;
+  private RecyclerView.LayoutManager mLayoutManager;
+
   public static ImageGridFragment newInstance() {
     return new ImageGridFragment();
   }
 
   @Override
-  protected RecyclerView.Adapter getAdapter() {
-    return new ImageListAdapter(ImageGridFragment.this, mImageList);
+  protected ImageListAdapter getAdapter() {
+    return getMemberAdapter();
   }
 
   @Override
   protected RecyclerView.LayoutManager getLayoutManager() {
-    return new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+    return getMemberLayoutManater();
   }
 
   @Override
   protected int getContentLayout() {
     return R.layout.fragment_list;
+  }
+
+  private ImageListAdapter getMemberAdapter() {
+    if (mAdapter == null) {
+      mAdapter = new ImageListAdapter(ImageGridFragment.this, mImageList);
+    }
+
+    return mAdapter;
+  }
+
+  private RecyclerView.LayoutManager getMemberLayoutManater() {
+    if (mLayoutManager == null) {
+      mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+    }
+
+    return mLayoutManager;
   }
 }

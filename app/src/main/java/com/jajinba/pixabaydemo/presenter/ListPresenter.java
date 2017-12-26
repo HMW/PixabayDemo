@@ -10,7 +10,7 @@ import java.util.Observer;
 public class ListPresenter implements Observer {
 
   public interface Callback {
-    void updateImageList(List<PixabayImageObject> imageList);
+    void updateImageList(String keyword, List<PixabayImageObject> imageList);
   }
 
   // FIXME weakreference
@@ -25,7 +25,10 @@ public class ListPresenter implements Observer {
   @Override
   public void update(Observable observable, Object o) {
     if (mCallback != null) {
-      mCallback.updateImageList(ImageManager.getInstance().getImageList());
+      String currentKeyword = ImageManager.getInstance().getCurrentKeyword();
+
+      mCallback.updateImageList(currentKeyword,
+          ImageManager.getInstance().getImageListWithKeyword(currentKeyword));
     }
   }
 }

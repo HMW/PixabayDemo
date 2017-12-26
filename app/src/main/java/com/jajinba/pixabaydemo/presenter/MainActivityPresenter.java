@@ -37,7 +37,7 @@ public class MainActivityPresenter {
   public void onSearchClick(final @NonNull String keyword) {
     if (ImageManager.getInstance().hasKeywordSearchBefore(keyword)) {
       Log.d(TAG, "Keyword been search before, use previous list instead");
-      ImageManager.getInstance().setImageListWithKeyword(keyword);
+      ImageManager.getInstance().setCurrentKeyword(keyword);
     } else {
       if (mCallback != null) {
         mCallback.searchStart();

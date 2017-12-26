@@ -1,6 +1,7 @@
 package com.jajinba.pixabaydemo.adapter;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -43,6 +44,10 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
   @Override
   public int getItemCount() {
     return ArrayUtils.getLengthSafe(mImageList);
+  }
+
+  public void updateList(List<PixabayImageObject> imageList) {
+    mImageList = imageList;
   }
 
 }

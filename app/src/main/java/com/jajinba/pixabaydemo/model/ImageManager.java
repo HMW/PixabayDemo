@@ -12,7 +12,7 @@ import java.util.Observable;
 public class ImageManager extends Observable {
   private static final ImageManager ourInstance = new ImageManager();
 
-  private List<PixabayImageObject> mImageList;
+  private String mCurrentKeyword;
   private Map<String, List<PixabayImageObject>> mKeywordToImageListMap;
 
   public static ImageManager getInstance() {
@@ -20,37 +20,35 @@ public class ImageManager extends Observable {
   }
 
   private ImageManager() {
-    mImageList = new ArrayList<>();
     mKeywordToImageListMap = new HashMap<>();
   }
 
-  private void setImageList(List<PixabayImageObject> imageList) {
-    mImageList = imageList;
+  public void setCurrentKeyword(String keyword) {
+    mCurrentKeyword = keyword;
 
     setChanged();
     notifyObservers();
   }
 
-  public void setImageList(String key, List<PixabayImageObject> imageList) {
-    setImageList(imageList);
-
-    mKeywordToImageListMap.put(key, imageList);
+  public String getCurrentKeyword() {
+    return mCurrentKeyword;
   }
 
-  public List<PixabayImageObject> getImageList() {
-    return mImageList == null ? new ArrayList<PixabayImageObject>() : mImageList;
+  public void setImageList(String keyword, List<PixabayImageObject> imageList) {
+    mKeywordToImageListMap.put(keyword, imageList);
+    setCurrentKeyword(keyword);
   }
 
   public boolean hasKeywordSearchBefore(String keyword) {
     return mKeywordToImageListMap.containsKey(keyword);
   }
 
-  public void setImageListWithKeyword(String keyword) {
-    if (TextUtils.isEmpty(keyword)) {
-      return;
+  public List<PixabayImageObject> getImageListWithKeyword(String keyword) {
+    if (TextUtils.isEmpty(keyword) || mKeywordToImageListMap.containsKey(keyword) == false) {
+      return new ArrayList<>();
     }
 
-    setImageList(mKeywordToImageListMap.get(keyword));
+    return mKeywordToImageListMap.get(keyword);
   }
 
 }
