@@ -7,8 +7,6 @@ import android.util.Log;
 
 import com.jajinba.pixabaydemo.BuildConfig;
 import com.jajinba.pixabaydemo.Constants;
-import com.jajinba.pixabaydemo.MainApplication;
-import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.PixabayResponseObject;
 import com.jajinba.pixabaydemo.network.listener.ResponseListener;
 import com.jajinba.pixabaydemo.utils.SearchUtils;

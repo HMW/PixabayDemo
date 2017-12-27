@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 // Load keystore
-def getApiKey(){
+def getApiKey() {
     def Properties props = new Properties()
     props.load(new FileInputStream(new File('keystore.properties')))
     return props['PixabayApiKey']
@@ -20,7 +20,7 @@ android {
     }
     buildTypes {
         applicationVariants.all { variant ->
-            variant.buildConfigField "String", "API_KEY", "\""+getApiKey()+"\""
+            variant.buildConfigField "String", "API_KEY", "\"" + getApiKey() + "\""
         }
         release {
             minifyEnabled false
