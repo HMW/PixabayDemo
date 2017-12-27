@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.jajinba.pixabaydemo.BuildConfig;
 import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.MainApplication;
 import com.jajinba.pixabaydemo.R;
@@ -110,7 +111,7 @@ public class ApiClient {
   public UUID searchImages(@NonNull String keyword,
                            ResponseListener<PixabayResponseObject> responseListener) {
     HashMap<String, String> params = new HashMap<>();
-    params.put(API_KEY, MainApplication.getInstance().getString(R.string.pixabay_api_key));
+    params.put(API_KEY, BuildConfig.API_KEY);
     params.put(API_KEYWORD, SearchUtils.formatSearchKeyword(keyword));
 
     return apiCall(params, responseListener);

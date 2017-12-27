@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+// Load keystore
+def getApiKey(){
+    def Properties props = new Properties()
+    props.load(new FileInputStream(new File('keystore.properties')))
+    return props['PixabayApiKey']
+}
+
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.0"
@@ -12,6 +19,9 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        applicationVariants.all { variant ->
+            variant.buildConfigField "String", "API_KEY", "\""+getApiKey()+"\""
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
