@@ -93,6 +93,7 @@ public class MainActivityPresenter {
       if (mCallback != null) {
         mCallback.searchDone();
 
+        // TODO should use ConnectivityManager to check whether has internet connection
         if (errorMsg.contains(Constants.FAIL_TO_CONNECT_TO_SERVER)) {
           mCallback.showErrorDialog(MainApplication.getInstance().getString(
               R.string.connect_to_server_fail));
