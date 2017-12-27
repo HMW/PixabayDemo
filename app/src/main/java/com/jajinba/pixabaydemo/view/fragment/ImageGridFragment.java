@@ -9,21 +9,18 @@ import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
 
 public class ImageGridFragment extends ListFragment {
 
-  private ImageListAdapter mAdapter;
-  private RecyclerView.LayoutManager mLayoutManager;
-
   public static ImageGridFragment newInstance() {
     return new ImageGridFragment();
   }
 
   @Override
   protected ImageListAdapter getAdapter() {
-    return getMemberAdapter();
+    return new ImageListAdapter(ImageGridFragment.this, mImageList);
   }
 
   @Override
   protected RecyclerView.LayoutManager getLayoutManager() {
-    return getMemberLayoutManager();
+    return new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
   }
 
   @Override
@@ -31,19 +28,4 @@ public class ImageGridFragment extends ListFragment {
     return R.layout.fragment_list;
   }
 
-  private ImageListAdapter getMemberAdapter() {
-    if (mAdapter == null) {
-      mAdapter = new ImageListAdapter(ImageGridFragment.this, mImageList);
-    }
-
-    return mAdapter;
-  }
-
-  private RecyclerView.LayoutManager getMemberLayoutManager() {
-    if (mLayoutManager == null) {
-      mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-    }
-
-    return mLayoutManager;
-  }
 }
