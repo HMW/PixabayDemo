@@ -57,7 +57,7 @@ public class MainActivityPresenter {
           filterMap.put(API_KEYWORD, formatSearchKeyword(keyword));
 
           Log.d(TAG, "Search image with keyword: " + formatSearchKeyword(keyword));
-          ApiClient.getInstance().getImages(filterMap, responseListener);
+          ApiClient.getInstance().searchImages(filterMap, responseListener);
         }
       }).start();
     }

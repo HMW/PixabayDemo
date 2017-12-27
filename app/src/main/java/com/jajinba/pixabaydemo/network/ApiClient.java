@@ -100,8 +100,8 @@ public class ApiClient {
     }
   }
 
-  public UUID getImages(@NonNull final HashMap<String, String> filtersMap,
-                        final ResponseListener<PixabayResponseObject> responseListener) {
+  public UUID searchImages(@NonNull final HashMap<String, String> filtersMap,
+                           final ResponseListener<PixabayResponseObject> responseListener) {
     return apiCall(filtersMap, responseListener);
   }
 
