@@ -6,8 +6,11 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.jajinba.pixabaydemo.Constants;
+import com.jajinba.pixabaydemo.MainApplication;
+import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.PixabayResponseObject;
 import com.jajinba.pixabaydemo.network.listener.ResponseListener;
+import com.jajinba.pixabaydemo.utils.SearchUtils;
 
 import java.net.HttpURLConnection;
 import java.util.HashMap;
@@ -21,6 +24,10 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
+
+  private static final String API_KEY = "key";
+  private static final String API_KEYWORD = "q";
+
   // TODO should maintain a api call(request) map here if we need to cancel api request, therefore
   // I choose to use Singleton pattern here
   private static volatile ApiClient sClient;
@@ -100,9 +107,13 @@ public class ApiClient {
     }
   }
 
-  public UUID searchImages(@NonNull final HashMap<String, String> filtersMap,
-                           final ResponseListener<PixabayResponseObject> responseListener) {
-    return apiCall(filtersMap, responseListener);
+  public UUID searchImages(@NonNull String keyword,
+                           ResponseListener<PixabayResponseObject> responseListener) {
+    HashMap<String, String> params = new HashMap<>();
+    params.put(API_KEY, MainApplication.getInstance().getString(R.string.pixabay_api_key));
+    params.put(API_KEYWORD, SearchUtils.formatSearchKeyword(keyword));
+
+    return apiCall(params, responseListener);
   }
 
   // FIXME query with page & per_page

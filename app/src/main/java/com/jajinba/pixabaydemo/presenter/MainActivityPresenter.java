@@ -13,14 +13,11 @@ import com.jajinba.pixabaydemo.model.PixabayResponseObject;
 import com.jajinba.pixabaydemo.network.ApiClient;
 import com.jajinba.pixabaydemo.network.listener.ResponseListener;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
-
-import java.util.HashMap;
+import com.jajinba.pixabaydemo.utils.SearchUtils;
 
 public class MainActivityPresenter {
 
   private static final String TAG = MainActivityPresenter.class.getSimpleName();
-  private static final String API_KEY = "key";
-  private static final String API_KEYWORD = "q";
 
   public interface Callback {
     void searchStart();
@@ -52,48 +49,40 @@ public class MainActivityPresenter {
         public void run() {
           mSearchKeyword = keyword;
 
-          HashMap<String, String> filterMap = new HashMap<>();
-          filterMap.put(API_KEY, MainApplication.getInstance().getString(R.string.pixabay_api_key));
-          filterMap.put(API_KEYWORD, formatSearchKeyword(keyword));
-
-          Log.d(TAG, "Search image with keyword: " + formatSearchKeyword(keyword));
-          ApiClient.getInstance().searchImages(filterMap, responseListener);
+          Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(keyword));
+          ApiClient.getInstance().searchImages(keyword, responseListener);
         }
       }).start();
     }
   }
 
-  private ResponseListener responseListener = new ResponseListener() {
+  private ResponseListener<PixabayResponseObject> responseListener =
+      new ResponseListener<PixabayResponseObject>() {
+
     @Override
-    public void onSuccess(@Nullable Object object) {
+    public void onSuccess(@Nullable PixabayResponseObject object) {
       if (object == null) {
         Log.e(TAG, "Response null");
+        return;
       }
 
       if (mCallback != null) {
         mCallback.searchDone();
       }
 
-      try {
-        if (ArrayUtils.isNotEmpty(((PixabayResponseObject) object).getHits())) {
-          Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(
-              ((PixabayResponseObject) object).getHits()) + " images");
+      if (ArrayUtils.isNotEmpty(object.getHits())) {
+        Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
 
-          ImageManager.getInstance().setImageList(
-              mSearchKeyword,
-              ((PixabayResponseObject) object).getHits());
+        ImageManager.getInstance().setImageList(mSearchKeyword,object.getHits());
 
-          mSearchKeyword = "";
-        } else {
-          Log.d(TAG, "Received empty image list");
+        mSearchKeyword = "";
+      } else {
+        Log.d(TAG, "Received empty image list");
 
-          if (mCallback != null) {
-            mCallback.showErrorDialog(MainApplication.getInstance().getString(
-                R.string.no_image_found));
-          }
+        if (mCallback != null) {
+          mCallback.showErrorDialog(MainApplication.getInstance().getString(
+              R.string.no_image_found));
         }
-      } catch (ClassCastException e) {
-        Log.e(TAG, "ClassCastException msg " + e.getMessage());
       }
     }
 
@@ -111,8 +100,4 @@ public class MainActivityPresenter {
       }
     }
   };
-
-  private String formatSearchKeyword(String keyword) {
-    return keyword.contains(" ") ? keyword.replace(" ", "+") : keyword;
-  }
 }
