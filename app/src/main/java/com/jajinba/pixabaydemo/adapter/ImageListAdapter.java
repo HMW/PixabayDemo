@@ -49,9 +49,8 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
       holder.getView(R.id.load_more_textview).setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-          // TODO should define setVisibility in ViewHolder
-          holder.getView(R.id.load_more_textview).setVisibility(View.GONE);
-          holder.getView(R.id.progress_bar).setVisibility(View.VISIBLE);
+          holder.setVisibility(R.id.load_more_textview, View.GONE);
+          holder.setVisibility(R.id.progress_bar, View.VISIBLE);
 
           mFragment.loadMore();
         }

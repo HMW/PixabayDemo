@@ -78,6 +78,21 @@ public class ViewHolder extends RecyclerView.ViewHolder {
   }
 
   /**
+   * Set visibility on target {@link View}
+   *
+   * @param viewId viewId target {@link View}'s resource id
+   * @param visibility visibility to set
+   * @return {@link ViewHolder}
+   */
+  public ViewHolder setVisibility(@IdRes int viewId, int visibility) {
+    View view = getView(viewId);
+    if (view != null) {
+      view.setVisibility(visibility);
+    }
+    return this;
+  }
+
+  /**
    * On item click listener
    */
   public interface OnRecyclerViewItemClickListener extends View.OnClickListener {
