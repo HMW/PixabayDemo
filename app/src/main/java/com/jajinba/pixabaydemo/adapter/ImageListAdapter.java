@@ -45,6 +45,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
             .into((ImageView) holder.getView(R.id.image_view));
       }
     } else if (getItemViewType(position) == VIEW_TYPE_LOADING) {
+      holder.setVisibility(R.id.load_more_textview, View.VISIBLE);
+      holder.setVisibility(R.id.progress_bar, View.GONE);
+
       // TODO should define setOnClickListener in ViewHolder
       holder.getView(R.id.load_more_textview).setOnClickListener(new View.OnClickListener() {
         @Override
@@ -53,6 +56,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
           holder.setVisibility(R.id.progress_bar, View.VISIBLE);
 
           mFragment.loadMore();
+
         }
       });
     }

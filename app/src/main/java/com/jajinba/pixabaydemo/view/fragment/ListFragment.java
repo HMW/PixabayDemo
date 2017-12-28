@@ -15,6 +15,7 @@ import com.jajinba.pixabaydemo.model.ImageManager;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.presenter.ListPresenter;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
+import com.jajinba.pixabaydemo.view.MainActivity;
 
 import java.util.List;
 
@@ -52,6 +53,21 @@ public abstract class ListFragment extends BaseFragment {
 
         updateUiState();
       }
+
+      if (mIsLoading) {
+        mIsLoading = false;
+      }
+    }
+
+    @Override
+    public void showErrorMsgDialog(String errorMsg) {
+      if (getActivity() != null && getActivity().isFinishing() == false &&
+          getActivity() instanceof MainActivity) {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        mainActivity.showErrorDialogWithMsg(errorMsg);
+      }
+
+      getAdapter().notifyItemChanged(ArrayUtils.getLengthSafe(mImageList));
 
       if (mIsLoading) {
         mIsLoading = false;

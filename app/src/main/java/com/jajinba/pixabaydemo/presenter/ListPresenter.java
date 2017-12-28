@@ -3,6 +3,9 @@ package com.jajinba.pixabaydemo.presenter;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.jajinba.pixabaydemo.Constants;
+import com.jajinba.pixabaydemo.MainApplication;
+import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.ImageManager;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.model.PixabayResponseObject;
@@ -21,6 +24,7 @@ public class ListPresenter implements Observer {
 
   public interface Callback {
     void updateImageList(String keyword, List<PixabayImageObject> imageList);
+    void showErrorMsgDialog(String errorMsg);
   }
 
   // FIXME weakreference
@@ -75,8 +79,10 @@ public class ListPresenter implements Observer {
         mSearchKeyword = "";
       } else {
         Log.d(TAG, "Received empty image list");
-
-        // TODO show dialog with error message
+        if (mCallback != null) {
+          mCallback.showErrorMsgDialog(MainApplication.getInstance().getString(
+              R.string.no_image_found));
+        }
       }
     }
 
@@ -84,7 +90,12 @@ public class ListPresenter implements Observer {
         public void onFailure(String errorMsg) {
           Log.e(TAG, "error msg: " + errorMsg);
 
-          // TODO show dialog with error message
+          if (mCallback != null) {
+            if (errorMsg.contains(Constants.FAIL_TO_CONNECT_TO_SERVER)) {
+              mCallback.showErrorMsgDialog(MainApplication.getInstance().getString(
+                  R.string.connect_to_server_fail));
+            }
+          }
         }
   };
 }
