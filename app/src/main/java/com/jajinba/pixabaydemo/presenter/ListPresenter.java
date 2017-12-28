@@ -24,6 +24,7 @@ public class ListPresenter implements Observer {
 
   public interface Callback {
     void updateImageList(String keyword, List<PixabayImageObject> imageList);
+
     void showErrorMsgDialog(String errorMsg);
   }
 
@@ -45,7 +46,7 @@ public class ListPresenter implements Observer {
         mSearchKeyword = keyword;
         int searchPage = ImageManager.getInstance().previousLoadedPage(mSearchKeyword) + 1;
         Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(mSearchKeyword) +
-        ", page: " + searchPage);
+            ", page: " + searchPage);
 
         ApiClient.getInstance().searchImages(mSearchKeyword, searchPage, responseListener);
       }
@@ -64,27 +65,27 @@ public class ListPresenter implements Observer {
 
   private ResponseListener<PixabayResponseObject> responseListener =
       new ResponseListener<PixabayResponseObject>() {
-    @Override
-    public void onSuccess(@Nullable PixabayResponseObject object) {
-      if (object == null) {
-        Log.e(TAG, "Response null");
-        return;
-      }
+        @Override
+        public void onSuccess(@Nullable PixabayResponseObject object) {
+          if (object == null) {
+            Log.e(TAG, "Response null");
+            return;
+          }
 
-      if (ArrayUtils.isNotEmpty(object.getHits())) {
-        Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
+          if (ArrayUtils.isNotEmpty(object.getHits())) {
+            Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
 
-        ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
+            ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
 
-        mSearchKeyword = "";
-      } else {
-        Log.d(TAG, "Received empty image list");
-        if (mCallback != null) {
-          mCallback.showErrorMsgDialog(MainApplication.getInstance().getString(
-              R.string.no_image_found));
+            mSearchKeyword = "";
+          } else {
+            Log.d(TAG, "Received empty image list");
+            if (mCallback != null) {
+              mCallback.showErrorMsgDialog(MainApplication.getInstance().getString(
+                  R.string.no_image_found));
+            }
+          }
         }
-      }
-    }
 
         @Override
         public void onFailure(String errorMsg) {
@@ -97,5 +98,5 @@ public class ListPresenter implements Observer {
             }
           }
         }
-  };
+      };
 }

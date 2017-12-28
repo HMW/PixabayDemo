@@ -80,7 +80,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
   /**
    * Set visibility on target {@link View}
    *
-   * @param viewId viewId target {@link View}'s resource id
+   * @param viewId     viewId target {@link View}'s resource id
    * @param visibility visibility to set
    * @return {@link ViewHolder}
    */

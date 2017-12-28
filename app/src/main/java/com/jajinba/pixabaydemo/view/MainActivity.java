@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
       mPresenter.onSearchClick(mSearchEditText.getText().toString());
 
       // hide keyboard after search
-      InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
       imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
     }
   }

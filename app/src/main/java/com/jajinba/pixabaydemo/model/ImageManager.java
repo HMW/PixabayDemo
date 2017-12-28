@@ -25,7 +25,9 @@ public class ImageManager extends Observable {
   }
 
   private String mCurrentKeyword;
-  private @ImageManager.Operation String mLastOperation;
+  private
+  @ImageManager.Operation
+  String mLastOperation;
   private Map<String, List<PixabayImageObject>> mKeywordToImageListMap;
   private Map<String, Integer> mKeywordToLoadedPageMap;
 
@@ -45,7 +47,9 @@ public class ImageManager extends Observable {
     notifyObservers();
   }
 
-  public @Operation String getLastOperation() {
+  public
+  @Operation
+  String getLastOperation() {
     return mLastOperation;
   }
 
