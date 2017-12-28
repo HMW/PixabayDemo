@@ -72,18 +72,16 @@ public class MainActivityPresenter {
 
       if (ArrayUtils.isNotEmpty(object.getHits())) {
         Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
-
-        ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
-
-        mSearchKeyword = "";
       } else {
         Log.d(TAG, "Received empty image list");
-
         if (mCallback != null) {
           mCallback.showErrorDialog(MainApplication.getInstance().getString(
               R.string.no_image_found));
         }
       }
+
+      ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
+      mSearchKeyword = "";
     }
 
     @Override
