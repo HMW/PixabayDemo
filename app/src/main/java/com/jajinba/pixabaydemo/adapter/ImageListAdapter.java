@@ -41,7 +41,10 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
         Glide.with(mFragment)
             .load(mImageList.get(position).getWebformatUrl())
             .placeholder(R.drawable.placeholder)
-            .crossFade()
+            // workaround, refer glide issue 542 on Github
+            .dontAnimate()
+            .override(mImageList.get(position).getWebformatWidth(),
+                mImageList.get(position).getWebformatHeight())
             .into((ImageView) holder.getView(R.id.image_view));
       }
     } else if (getItemViewType(position) == VIEW_TYPE_LOADING) {
