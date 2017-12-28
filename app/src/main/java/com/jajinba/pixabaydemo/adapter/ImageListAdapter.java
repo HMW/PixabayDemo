@@ -1,7 +1,7 @@
 package com.jajinba.pixabaydemo.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -10,40 +10,64 @@ import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
 import com.jajinba.pixabaydemo.view.ViewHolder;
-import com.jajinba.pixabaydemo.view.fragment.BaseFragment;
+import com.jajinba.pixabaydemo.view.fragment.ListFragment;
 
 import java.util.List;
 
 
 public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-  private BaseFragment mFragment;
+  private final int VIEW_TYPE_ITEM = 5566;
+  private final int VIEW_TYPE_LOADING = 5567;
+
+  private ListFragment mFragment;
   private List<PixabayImageObject> mImageList;
 
-  public ImageListAdapter(BaseFragment fragment, List<PixabayImageObject> imageList) {
+  public ImageListAdapter(ListFragment fragment, List<PixabayImageObject> imageList) {
     mFragment = fragment;
     mImageList = imageList;
   }
 
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    return new ViewHolder(R.layout.item_image, parent);
+    return viewType == VIEW_TYPE_ITEM ? new ViewHolder(R.layout.item_image, parent) :
+        new ViewHolder(R.layout.item_loading, parent);
   }
 
   @Override
-  public void onBindViewHolder(ViewHolder holder, int position) {
-    if (mFragment.isFragmentValid() && ArrayUtils.getLengthSafe(mImageList) > position) {
-      Glide.with(mFragment)
-          .load(mImageList.get(position).getWebformatUrl())
-          .placeholder(R.drawable.placeholder)
-          .crossFade()
-          .into((ImageView) holder.getView(R.id.image_view));
+  public void onBindViewHolder(final ViewHolder holder, int position) {
+    if (getItemViewType(position) == VIEW_TYPE_ITEM) {
+      if (mFragment.isFragmentValid() && ArrayUtils.getLengthSafe(mImageList) > position) {
+        Glide.with(mFragment)
+            .load(mImageList.get(position).getWebformatUrl())
+            .placeholder(R.drawable.placeholder)
+            .crossFade()
+            .into((ImageView) holder.getView(R.id.image_view));
+      }
+    } else if (getItemViewType(position) == VIEW_TYPE_LOADING) {
+      // TODO should define setOnClickListener in ViewHolder
+      holder.getView(R.id.load_more_textview).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+          // TODO should define setVisibility in ViewHolder
+          holder.getView(R.id.load_more_textview).setVisibility(View.GONE);
+          holder.getView(R.id.progress_bar).setVisibility(View.VISIBLE);
+
+          mFragment.loadMore();
+        }
+      });
     }
   }
 
   @Override
   public int getItemCount() {
-    return ArrayUtils.getLengthSafe(mImageList);
+    // +1 for bottom loading item
+    return ArrayUtils.getLengthSafe(mImageList) + 1;
+  }
+
+  @Override
+  public int getItemViewType(int position) {
+    return ArrayUtils.getLengthSafe(mImageList) > position ? VIEW_TYPE_ITEM : VIEW_TYPE_LOADING;
   }
 
   public void updateList(List<PixabayImageObject> imageList) {

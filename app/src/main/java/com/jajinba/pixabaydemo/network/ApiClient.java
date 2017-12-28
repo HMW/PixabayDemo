@@ -25,6 +25,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
 
   private static final String API_KEY = "key";
+  private static final String API_PAGE = "page";
+  private static final String API_IMAGE_PER_PAGE = "per_page";
   private static final String API_KEYWORD = "q";
 
   // TODO should maintain a api call(request) map here if we need to cancel api request, therefore
@@ -108,8 +110,15 @@ public class ApiClient {
 
   public UUID searchImages(@NonNull String keyword,
                            ResponseListener<PixabayResponseObject> responseListener) {
+    return searchImages(keyword, 1, responseListener);
+  }
+
+  public UUID searchImages(@NonNull String keyword, int page,
+                           ResponseListener<PixabayResponseObject> responseListener) {
     HashMap<String, String> params = new HashMap<>();
     params.put(API_KEY, BuildConfig.API_KEY);
+    params.put(API_PAGE, String.valueOf(page));
+    params.put(API_IMAGE_PER_PAGE, String.valueOf(Constants.IMAGE_PER_PAGE));
     params.put(API_KEYWORD, SearchUtils.formatSearchKeyword(keyword));
 
     return apiCall(params, responseListener);

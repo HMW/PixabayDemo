@@ -73,7 +73,7 @@ public class MainActivityPresenter {
       if (ArrayUtils.isNotEmpty(object.getHits())) {
         Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
 
-        ImageManager.getInstance().setImageList(mSearchKeyword,object.getHits());
+        ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
 
         mSearchKeyword = "";
       } else {

@@ -2,11 +2,13 @@ package com.jajinba.pixabaydemo.view.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
 import com.jajinba.pixabaydemo.model.ImageManager;
@@ -17,6 +19,9 @@ import com.jajinba.pixabaydemo.utils.ArrayUtils;
 import java.util.List;
 
 import butterknife.BindView;
+
+import static com.jajinba.pixabaydemo.model.ImageManager.LOAD_MORE;
+import static com.jajinba.pixabaydemo.model.ImageManager.NEW_SEARCH;
 
 public abstract class ListFragment extends BaseFragment {
 
@@ -32,6 +37,7 @@ public abstract class ListFragment extends BaseFragment {
   private ListPresenter mPresenter;
   protected String mCurrentKeyword;
   protected List<PixabayImageObject> mImageList;
+  private boolean mIsLoading = false;
 
   private ListPresenter.Callback mCallback = new ListPresenter.Callback() {
     @Override
@@ -45,6 +51,10 @@ public abstract class ListFragment extends BaseFragment {
         Log.d(TAG, imageCount + " image received");
 
         updateUiState();
+      }
+
+      if (mIsLoading) {
+        mIsLoading = false;
       }
     }
   };
@@ -83,14 +93,41 @@ public abstract class ListFragment extends BaseFragment {
     outState.putString(BUNDLE_IMAGE_KEY, mCurrentKeyword);
   }
 
+  /**
+   * Load more request from adapter (button clicked)
+   */
+  public void loadMore() {
+    if (mIsLoading == false) {
+      mPresenter.loadMore(mCurrentKeyword);
+      mIsLoading = true;
+    }
+  }
+
   private void updateUiState() {
     mEmptyStateTextView.setVisibility(ArrayUtils.isNotEmpty(mImageList) ? View.GONE : View.VISIBLE);
     mRecyclerView.setVisibility(ArrayUtils.isNotEmpty(mImageList) ? View.VISIBLE : View.GONE);
 
     mRecyclerView.setAdapter(getAdapter());
     mRecyclerView.setLayoutManager(getLayoutManager());
+    mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-    getAdapter().updateList(mImageList);
-    getAdapter().notifyDataSetChanged();
+    @ImageManager.Operation String lastOperation = ImageManager.getInstance().getLastOperation();
+    Log.d(TAG, "update ui state with operation: " + lastOperation);
+
+    if (NEW_SEARCH.equals(lastOperation)) {
+      getAdapter().updateList(mImageList);
+      getAdapter().notifyDataSetChanged();
+    } else if (LOAD_MORE.equals(lastOperation)) {
+      // FIXME should get actual number
+      int newImageCount = ArrayUtils.getLengthSafe(mImageList) % Constants.IMAGE_PER_PAGE == 0 ?
+          ArrayUtils.getLengthSafe(mImageList) - Constants.IMAGE_PER_PAGE :
+          ArrayUtils.getLengthSafe(mImageList) % Constants.IMAGE_PER_PAGE;
+
+      // FIXME not scroll to new image list smoothly...
+      getAdapter().updateList(mImageList);
+      getAdapter().notifyItemRangeInserted(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1,
+          newImageCount);
+      mRecyclerView.scrollToPosition(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1);
+    }
   }
 }

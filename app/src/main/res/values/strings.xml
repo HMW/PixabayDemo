@@ -13,4 +13,6 @@
     <string name="no_image_found">No image found</string>
     <string name="connect_to_server_fail">Failed to connect to server</string>
 
+    <string name="load_more">Click me to see more</string>
+
 </resources>

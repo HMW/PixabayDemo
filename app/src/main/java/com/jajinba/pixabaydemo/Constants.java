@@ -7,4 +7,6 @@ public class Constants {
 
   public static final String FAIL_TO_CONNECT_TO_SERVER = "Unable to resolve host";
 
+  public static final int IMAGE_PER_PAGE = 20;
+
 }
