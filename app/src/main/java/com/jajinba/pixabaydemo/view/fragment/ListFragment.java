@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
-import com.jajinba.pixabaydemo.model.ImageManager;
+import com.jajinba.pixabaydemo.contract.ListContract;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.presenter.ListPresenter;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
@@ -21,10 +21,11 @@ import java.util.List;
 
 import butterknife.BindView;
 
+import static com.jajinba.pixabaydemo.model.ImageManager.Operation;
 import static com.jajinba.pixabaydemo.model.ImageManager.LOAD_MORE;
 import static com.jajinba.pixabaydemo.model.ImageManager.NEW_SEARCH;
 
-public abstract class ListFragment extends BaseFragment {
+public abstract class ListFragment extends BaseFragment implements ListContract.View {
 
   private static final String TAG = ListFragment.class.getSimpleName();
 
@@ -35,45 +36,11 @@ public abstract class ListFragment extends BaseFragment {
   @BindView(R.id.recycler_view)
   RecyclerView mRecyclerView;
 
-  private ListPresenter mPresenter;
+  private ListContract.Presenter mPresenter;
+
   protected String mCurrentKeyword;
   protected List<PixabayImageObject> mImageList;
   private boolean mIsLoading = false;
-
-  private ListPresenter.Callback mCallback = new ListPresenter.Callback() {
-    @Override
-    public void updateImageList(String keyword, List<PixabayImageObject> imageList) {
-      mCurrentKeyword = keyword;
-      mImageList = imageList;
-
-      // FIXME check is attached?
-      if (isFragmentValid()) {
-        int imageCount = ArrayUtils.getLengthSafe(imageList);
-        Log.d(TAG, imageCount + " image received");
-
-        updateUiState();
-      }
-
-      if (mIsLoading) {
-        mIsLoading = false;
-      }
-    }
-
-    @Override
-    public void showErrorMsgDialog(String errorMsg) {
-      if (getActivity() != null && getActivity().isFinishing() == false &&
-          getActivity() instanceof MainActivity) {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        mainActivity.showErrorDialogWithMsg(errorMsg);
-      }
-
-      getAdapter().notifyItemChanged(ArrayUtils.getLengthSafe(mImageList));
-
-      if (mIsLoading) {
-        mIsLoading = false;
-      }
-    }
-  };
 
   protected abstract ImageListAdapter getAdapter();
 
@@ -89,7 +56,7 @@ public abstract class ListFragment extends BaseFragment {
     super.onViewCreated(view, savedInstanceState);
 
     if (mPresenter == null) {
-      mPresenter = new ListPresenter(mCallback);
+      mPresenter = new ListPresenter(this);
     }
 
     // restore state before rotation
@@ -97,7 +64,7 @@ public abstract class ListFragment extends BaseFragment {
       mCurrentKeyword = savedInstanceState.getString(BUNDLE_IMAGE_KEY);
       savedInstanceState.clear();
 
-      mImageList = ImageManager.getInstance().getImageListWithKeyword(mCurrentKeyword);
+      mImageList = mPresenter.getImageList(mCurrentKeyword);
 
       updateUiState();
     }
@@ -112,10 +79,40 @@ public abstract class ListFragment extends BaseFragment {
   /**
    * Load more request from adapter (button clicked)
    */
+  // FIXME should define in interface
   public void loadMore() {
     if (mIsLoading == false) {
       mPresenter.loadMore(mCurrentKeyword);
       mIsLoading = true;
+    }
+  }
+
+  @Override
+  public void updateImageList(String keyword, List<PixabayImageObject> imageList) {
+    mCurrentKeyword = keyword;
+    mImageList = imageList;
+
+    // FIXME check is attached?
+    if (isFragmentValid()) {
+      int imageCount = ArrayUtils.getLengthSafe(imageList);
+      Log.d(TAG, imageCount + " image received");
+
+      updateUiState();
+    }
+  }
+
+  @Override
+  public void showErrorMsgDialog(String errorMsg) {
+    if (getActivity() != null && getActivity().isFinishing() == false &&
+        getActivity() instanceof MainActivity) {
+      MainActivity mainActivity = (MainActivity) getActivity();
+      mainActivity.showErrorDialogWithMsg(errorMsg);
+    }
+
+    getAdapter().notifyItemChanged(ArrayUtils.getLengthSafe(mImageList));
+
+    if (mIsLoading) {
+      mIsLoading = false;
     }
   }
 
@@ -127,7 +124,7 @@ public abstract class ListFragment extends BaseFragment {
     mRecyclerView.setLayoutManager(getLayoutManager());
     mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-    @ImageManager.Operation String lastOperation = ImageManager.getInstance().getLastOperation();
+    @Operation String lastOperation = mPresenter.getLastOperation();
     Log.d(TAG, "update ui state with operation: " + lastOperation);
 
     if (NEW_SEARCH.equals(lastOperation)) {

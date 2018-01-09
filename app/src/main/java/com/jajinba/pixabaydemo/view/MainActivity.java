@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ViewPagerAdapter;
+import com.jajinba.pixabaydemo.contract.MainActivityContract;
 import com.jajinba.pixabaydemo.presenter.MainActivityPresenter;
 import com.jajinba.pixabaydemo.view.fragment.ImageGridFragment;
 import com.jajinba.pixabaydemo.view.fragment.ImageListFragment;
@@ -27,7 +28,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityContract.View {
 
   @BindView(R.id.search_et)
   EditText mSearchEditText;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
   @BindView(R.id.viewpager)
   ViewPager mViewPager;
 
-  private MainActivityPresenter mPresenter;
+  private MainActivityContract.Presenter mPresenter;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
   private void initView() {
     // TODO error handling, e.g., no network
 
-    mPresenter = new MainActivityPresenter(mCallback);
+    mPresenter = new MainActivityPresenter(this);
 
     List<Fragment> fragmentList = new ArrayList<>();
     fragmentList.add(ImageListFragment.newInstance());
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
   @OnClick(R.id.search_btn)
   public void search() {
     if (TextUtils.isEmpty(mSearchEditText.getText().toString()) == false) {
-      mPresenter.onSearchClick(mSearchEditText.getText().toString());
+      mPresenter.search(mSearchEditText.getText().toString());
 
       // hide keyboard after search
       InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -95,20 +96,18 @@ public class MainActivity extends AppCompatActivity {
     }
   }
 
-  private MainActivityPresenter.Callback mCallback = new MainActivityPresenter.Callback() {
-    @Override
-    public void searchStart() {
-      mProgressBar.setVisibility(View.VISIBLE);
-    }
+  @Override
+  public void searchStart() {
+    mProgressBar.setVisibility(View.VISIBLE);
+  }
 
-    @Override
-    public void searchDone() {
-      mProgressBar.setVisibility(View.INVISIBLE);
-    }
+  @Override
+  public void searchDone() {
+    mProgressBar.setVisibility(View.INVISIBLE);
+  }
 
-    @Override
-    public void showErrorDialog(String errorMsg) {
-      showErrorDialogWithMsg(errorMsg);
-    }
-  };
+  @Override
+  public void showErrorDialog(String errorMsg) {
+    showErrorDialogWithMsg(errorMsg);
+  }
 }
