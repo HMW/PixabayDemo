@@ -116,13 +116,19 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
     }
   }
 
+  @Override
+  public void searchFinished() {
+    getAdapter().searchFinished();
+  }
+
   private void updateUiState() {
     mEmptyStateTextView.setVisibility(ArrayUtils.isNotEmpty(mImageList) ? View.GONE : View.VISIBLE);
     mRecyclerView.setVisibility(ArrayUtils.isNotEmpty(mImageList) ? View.VISIBLE : View.GONE);
 
     mRecyclerView.setAdapter(getAdapter());
     mRecyclerView.setLayoutManager(getLayoutManager());
-    mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+    //mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+    mRecyclerView.setItemAnimator(null);
 
     @Operation String lastOperation = mPresenter.getLastOperation();
     Log.d(TAG, "update ui state with operation: " + lastOperation);

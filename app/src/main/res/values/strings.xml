@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">PixabayDemo</string>
 
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
 
     <string name="tab_title_list">List</string>
     <string name="tab_title_grid">Grid</string>
@@ -10,6 +10,7 @@
 
     <string name="search_et_hint">Search with keyword</string>
     <string name="search_btn_title">Search</string>
+    <string name="general_error">Search failed</string>
     <string name="no_image_found">No image found</string>
     <string name="connect_to_server_fail">Failed to connect to server</string>
 

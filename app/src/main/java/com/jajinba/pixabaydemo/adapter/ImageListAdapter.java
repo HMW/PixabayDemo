@@ -66,6 +66,20 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
   }
 
   @Override
+  public void onBindViewHolder(ViewHolder holder, int position, List<Object> payloads) {
+    if (payloads != null && !payloads.isEmpty() &&
+        ("number".equals(payloads.get(0)))) {
+      // update the specific view
+
+    } else {
+      // I have already overridden  the other onBindViewHolder(ViewHolder, int)
+      // The method with 3 arguments is being called before the method with 2 args.
+      // so calling super will call that method with 2 arguments.
+      super.onBindViewHolder(holder,position,payloads);
+    }
+  }
+
+  @Override
   public int getItemCount() {
     // +1 for bottom loading item
     return ArrayUtils.getLengthSafe(mImageList) + 1;
@@ -78,6 +92,11 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
   public void updateList(List<PixabayImageObject> imageList) {
     mImageList = imageList;
+  }
+
+  public void searchFinished() {
+    // FIXME update ui
+    //notifyItemChanged(getItemCount(), );
   }
 
 }

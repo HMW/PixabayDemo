@@ -1,8 +1,18 @@
 package com.jajinba.pixabaydemo.model;
 
 
+import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
+import android.util.Log;
+
+import com.jajinba.pixabaydemo.Constants;
+import com.jajinba.pixabaydemo.R;
+import com.jajinba.pixabaydemo.network.ApiClient;
+import com.jajinba.pixabaydemo.network.listener.ResponseListener;
+import com.jajinba.pixabaydemo.utils.ArrayUtils;
+import com.jajinba.pixabaydemo.utils.SearchUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +21,8 @@ import java.util.Map;
 import java.util.Observable;
 
 public class ImageManager extends Observable {
+  private static final String TAG = ImageManager.class.getSimpleName();
+
   private static final ImageManager ourInstance = new ImageManager();
 
   public static final String NEW_SEARCH = "new.search";
@@ -24,12 +36,18 @@ public class ImageManager extends Observable {
 
   }
 
-  private String mCurrentKeyword;
+  public interface SearchCallback {
+    void onFail(@StringRes int  errorMsg);
+  }
+
   private
   @ImageManager.Operation
   String mLastOperation;
+  private String mCurrentKeyword;// FIXME better naming
+  private String mSearchingKeyword;// FIXME better naming
   private Map<String, List<PixabayImageObject>> mKeywordToImageListMap;
   private Map<String, Integer> mKeywordToLoadedPageMap;
+  private SearchCallback mSearchCallback;
 
   public static ImageManager getInstance() {
     return ourInstance;
@@ -58,6 +76,8 @@ public class ImageManager extends Observable {
   }
 
   public void setImageList(String keyword, List<PixabayImageObject> imageList) {
+    Log.d(TAG, "Set " + keyword + " with " + ArrayUtils.getLengthSafe(imageList) + " images");
+
     // update image list
     if (mKeywordToImageListMap.containsKey(keyword)) {
       // put new list to previous list to keep image order
@@ -97,5 +117,66 @@ public class ImageManager extends Observable {
 
     return mKeywordToImageListMap.get(keyword);
   }
+
+  ///////////////////////////// API relatives /////////////////////////////
+
+  public void searchImage(final String keyword, final int page) {
+    mSearchingKeyword = keyword;
+
+    // TODO handle all api query together, maybe a Handler and a HandlerThread
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(keyword) +
+            ", page: " + page);
+
+        ApiClient.getInstance().searchImages(keyword, page, responseListener);
+      }
+    }).start();
+  }
+
+  public void setSearchCallback(SearchCallback searchCallback) {
+    mSearchCallback = searchCallback;
+  }
+
+  private ResponseListener<PixabayResponseObject> responseListener =
+      new ResponseListener<PixabayResponseObject>() {
+        @Override
+        public void onSuccess(@Nullable PixabayResponseObject object) {
+          if (object == null) {
+            Log.e(TAG, "Response null");
+            return;
+          }
+
+          if (ArrayUtils.isNotEmpty(object.getHits())) {
+            Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
+
+            setImageList(mSearchingKeyword, object.getHits());
+
+            mSearchingKeyword = "";
+          } else {
+            Log.d(TAG, "Received empty image list");
+
+            if (mSearchCallback != null) {
+              mSearchCallback.onFail(R.string.no_image_found);
+            }
+          }
+        }
+
+        @Override
+        public void onFailure(String errorMsg) {
+          Log.e(TAG, "error msg: " + errorMsg);
+
+          if (mSearchCallback == null) {
+            return;
+          }
+
+          if (errorMsg.contains(Constants.FAIL_TO_CONNECT_TO_SERVER)) {
+            mSearchCallback.onFail(R.string.connect_to_server_fail);
+          } else {
+            mSearchCallback.onFail(R.string.general_error);
+          }
+        }
+      };
 
 }

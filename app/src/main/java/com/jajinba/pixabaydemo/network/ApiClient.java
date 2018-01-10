@@ -3,14 +3,18 @@ package com.jajinba.pixabaydemo.network;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.jajinba.pixabaydemo.BuildConfig;
 import com.jajinba.pixabaydemo.Constants;
+import com.jajinba.pixabaydemo.MainApplication;
+import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.model.PixabayResponseObject;
 import com.jajinba.pixabaydemo.network.listener.ResponseListener;
 import com.jajinba.pixabaydemo.utils.SearchUtils;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 import java.util.Map;
@@ -166,10 +170,20 @@ public class ApiClient {
       removeCallFromMap(mUuid);
 
 
-      if (response == null || response.isSuccessful() == false || response.errorBody() != null) {
+      if (response.isSuccessful() == false || response.errorBody() != null) {
         Log.e(TAG, "onResponse; response is null.");
         if (mListener != null) {
-          mListener.onFailure(response.toString());
+          if (response.errorBody() != null) {
+            try {
+              mListener.onFailure(TextUtils.isEmpty(response.errorBody().string()) ?
+                  MainApplication.getInstance().getString(R.string.general_error) :
+                  response.errorBody().string());
+            } catch (IOException | NullPointerException e) {
+              e.printStackTrace();
+            }
+          } else {
+            mListener.onFailure(response.toString());
+          }
         }
         return;
       }
