@@ -20,7 +20,12 @@ public class ListPresenter implements Observer, ListContract.Presenter {
   public ListPresenter(ListContract.View view) {
     mView = view;
     ImageManager.getInstance().addObserver(this);
-    ImageManager.getInstance().setSearchCallback(new ImageManager.SearchCallback() {
+    ImageManager.getInstance().addSearchCallback(new ImageManager.SearchCallback() {
+      @Override
+      public void onSuccess() {
+        mView.searchFinished();
+      }
+
       @Override
       public void onFail(@StringRes int errorMsg) {
         mView.searchFinished();
