@@ -56,11 +56,6 @@ public class ApiClient {
     mApiService = retrofit.create(ApiService.class);
   }
 
-  public void searchImages(@NonNull String keyword,
-                           Observer<Response<PixabayResponseObject>> subscriber) {
-    searchImages(keyword, 1, subscriber);
-  }
-
   public void searchImages(@NonNull String keyword, int page,
                            Observer<Response<PixabayResponseObject>> subscriber) {
     HashMap<String, String> params = new HashMap<>();
