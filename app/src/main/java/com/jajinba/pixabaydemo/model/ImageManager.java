@@ -1,16 +1,13 @@
 package com.jajinba.pixabaydemo.model;
 
 
-import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.network.ApiClient;
-import com.jajinba.pixabaydemo.network.listener.ResponseListener;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
 import com.jajinba.pixabaydemo.utils.SearchUtils;
 
@@ -19,6 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 public class ImageManager extends Observable {
   private static final String TAG = ImageManager.class.getSimpleName();
@@ -130,7 +130,7 @@ public class ImageManager extends Observable {
         Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(keyword) +
             ", page: " + page);
 
-        ApiClient.getInstance().searchImages(keyword, page, responseListener);
+        ApiClient.getInstance().searchImages(keyword, page, mObserver);
       }
     }).start();
   }
@@ -139,32 +139,40 @@ public class ImageManager extends Observable {
     mSearchCallback = searchCallback;
   }
 
-  private ResponseListener<PixabayResponseObject> responseListener =
-      new ResponseListener<PixabayResponseObject>() {
-        @Override
-        public void onSuccess(@Nullable PixabayResponseObject object) {
-          if (object == null) {
-            Log.e(TAG, "Response null");
-            return;
-          }
+  private Observer<PixabayResponseObject> mObserver = new Observer<PixabayResponseObject>() {
 
-          if (ArrayUtils.isNotEmpty(object.getHits())) {
-            Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
+    @Override
+    public void onSubscribe(Disposable d) {
+      Log.d(TAG, "onSubscribe");
+    }
 
-            setImageList(mSearchingKeyword, object.getHits());
+    @Override
+    public void onNext(PixabayResponseObject object) {
+      if (object == null) {
+        Log.e(TAG, "Response null");
+        return;
+      }
 
-            mSearchingKeyword = "";
-          } else {
-            Log.d(TAG, "Received empty image list");
+      if (ArrayUtils.isNotEmpty(object.getHits())) {
+        Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
 
-            if (mSearchCallback != null) {
-              mSearchCallback.onFail(R.string.no_image_found);
-            }
-          }
+        setImageList(mSearchingKeyword, object.getHits());
+
+        mSearchingKeyword = "";
+      } else {
+        Log.d(TAG, "Received empty image list");
+
+        if (mSearchCallback != null) {
+          mSearchCallback.onFail(R.string.no_image_found);
         }
+      }
+    }
 
-        @Override
-        public void onFailure(String errorMsg) {
+    @Override
+    public void onError(Throwable e) {
+      // TODO
+      /*
+
           Log.e(TAG, "error msg: " + errorMsg);
 
           if (mSearchCallback == null) {
@@ -176,7 +184,13 @@ public class ImageManager extends Observable {
           } else {
             mSearchCallback.onFail(R.string.general_error);
           }
-        }
-      };
+       */
+    }
+
+    @Override
+    public void onComplete() {
+      Log.d(TAG, "onComplete");
+    }
+  };
 
 }

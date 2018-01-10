@@ -2,19 +2,19 @@ package com.jajinba.pixabaydemo.presenter;
 
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.MainApplication;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.contract.MainActivityContract;
 import com.jajinba.pixabaydemo.model.ImageManager;
 import com.jajinba.pixabaydemo.model.PixabayResponseObject;
 import com.jajinba.pixabaydemo.network.ApiClient;
-import com.jajinba.pixabaydemo.network.listener.ResponseListener;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
 import com.jajinba.pixabaydemo.utils.SearchUtils;
+
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 
 public class MainActivityPresenter implements MainActivityContract.Presenter {
 
@@ -43,38 +43,42 @@ public class MainActivityPresenter implements MainActivityContract.Presenter {
           mSearchKeyword = keyword;
 
           Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(keyword));
-          ApiClient.getInstance().searchImages(keyword, responseListener);
+          ApiClient.getInstance().searchImages(keyword, mObserver);
         }
       }).start();
     }
   }
 
-  private ResponseListener<PixabayResponseObject> responseListener =
-      new ResponseListener<PixabayResponseObject>() {
+  private Observer<PixabayResponseObject> mObserver = new Observer<PixabayResponseObject>() {
+    @Override
+    public void onSubscribe(Disposable d) {
+      Log.d(TAG, "onSubscribe");
+    }
 
-        @Override
-        public void onSuccess(@Nullable PixabayResponseObject object) {
-          if (object == null) {
-            Log.e(TAG, "Response null");
-            return;
-          }
+    @Override
+    public void onNext(PixabayResponseObject object) {
+      if (object == null) {
+        Log.e(TAG, "Response null");
+        return;
+      }
 
-          mView.searchDone();
+      mView.searchDone();
 
-          if (ArrayUtils.isNotEmpty(object.getHits())) {
-            Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
-          } else {
-            Log.d(TAG, "Received empty image list");
-            mView.showErrorDialog(MainApplication.getInstance().getString(
-                R.string.no_image_found));
-          }
+      if (ArrayUtils.isNotEmpty(object.getHits())) {
+        Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
+      } else {
+        Log.d(TAG, "Received empty image list");
+        mView.showErrorDialog(MainApplication.getInstance().getString(
+            R.string.no_image_found));
+      }
 
-          ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
-          mSearchKeyword = "";
-        }
+      ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
+      mSearchKeyword = "";
+    }
 
-        @Override
-        public void onFailure(String errorMsg) {
+    @Override
+    public void onError(Throwable e) {
+      /*
           Log.e(TAG, "error msg: " + errorMsg);
 
           mView.searchDone();
@@ -85,6 +89,13 @@ public class MainActivityPresenter implements MainActivityContract.Presenter {
                 R.string.connect_to_server_fail));
           }
         }
-      };
+      */
+    }
+
+    @Override
+    public void onComplete() {
+      Log.d(TAG, "onComplete");
+    }
+  };
 
 }
