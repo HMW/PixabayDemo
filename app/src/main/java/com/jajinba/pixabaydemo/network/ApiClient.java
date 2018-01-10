@@ -13,6 +13,7 @@ import java.util.HashMap;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -56,12 +57,12 @@ public class ApiClient {
   }
 
   public void searchImages(@NonNull String keyword,
-                           Observer<PixabayResponseObject> subscriber) {
+                           Observer<Response<PixabayResponseObject>> subscriber) {
     searchImages(keyword, 1, subscriber);
   }
 
   public void searchImages(@NonNull String keyword, int page,
-                           Observer<PixabayResponseObject> subscriber) {
+                           Observer<Response<PixabayResponseObject>> subscriber) {
     HashMap<String, String> params = new HashMap<>();
     params.put(API_KEY, BuildConfig.API_KEY);
     params.put(API_PAGE, String.valueOf(page));
@@ -72,7 +73,7 @@ public class ApiClient {
   }
 
   private void apiCall(@NonNull HashMap<String, String> filtersMap,
-                       Observer<PixabayResponseObject> subscriber) {
+                       Observer<Response<PixabayResponseObject>> subscriber) {
     mApiService.searchImages(filtersMap)
         .subscribeOn(Schedulers.io())
         .unsubscribeOn(Schedulers.io())

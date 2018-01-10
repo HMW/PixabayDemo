@@ -15,6 +15,7 @@ import com.jajinba.pixabaydemo.utils.SearchUtils;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
+import retrofit2.Response;
 
 public class MainActivityPresenter implements MainActivityContract.Presenter {
 
@@ -49,47 +50,47 @@ public class MainActivityPresenter implements MainActivityContract.Presenter {
     }
   }
 
-  private Observer<PixabayResponseObject> mObserver = new Observer<PixabayResponseObject>() {
+  private Observer<Response<PixabayResponseObject>> mObserver =
+      new Observer<Response<PixabayResponseObject>>() {
     @Override
     public void onSubscribe(Disposable d) {
       Log.d(TAG, "onSubscribe");
     }
 
     @Override
-    public void onNext(PixabayResponseObject object) {
-      if (object == null) {
+    public void onNext(Response<PixabayResponseObject> response) {
+      if (response == null) {
         Log.e(TAG, "Response null");
         return;
       }
 
-      mView.searchDone();
+      if (response.isSuccessful()) {
+        PixabayResponseObject object = response.body();
+        if (object == null) {
+          Log.e(TAG, "Response body null");
+          return;
+        }
 
-      if (ArrayUtils.isNotEmpty(object.getHits())) {
-        Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
+        mView.searchDone();
+
+        if (ArrayUtils.isNotEmpty(object.getHits())) {
+          Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
+        } else {
+          Log.d(TAG, "Received empty image list");
+          mView.showErrorDialog(MainApplication.getInstance().getString(
+              R.string.no_image_found));
+        }
+
+        ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
+        mSearchKeyword = "";
       } else {
-        Log.d(TAG, "Received empty image list");
-        mView.showErrorDialog(MainApplication.getInstance().getString(
-            R.string.no_image_found));
+        Log.e(TAG, "error msg: " + response.errorBody());
       }
-
-      ImageManager.getInstance().setImageList(mSearchKeyword, object.getHits());
-      mSearchKeyword = "";
     }
 
     @Override
     public void onError(Throwable e) {
-      /*
-          Log.e(TAG, "error msg: " + errorMsg);
-
-          mView.searchDone();
-
-          // TODO should use ConnectivityManager to check whether has internet connection
-          if (errorMsg.contains(Constants.FAIL_TO_CONNECT_TO_SERVER)) {
-            mView.showErrorDialog(MainApplication.getInstance().getString(
-                R.string.connect_to_server_fail));
-          }
-        }
-      */
+      Log.e(TAG, "error msg: " + e.getMessage());
     }
 
     @Override
