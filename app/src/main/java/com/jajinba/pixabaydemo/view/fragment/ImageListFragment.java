@@ -9,13 +9,19 @@ import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
 
 public class ImageListFragment extends ListFragment {
 
+  private ImageListAdapter mAdapter;
+
   public static ImageListFragment newInstance() {
     return new ImageListFragment();
   }
 
   @Override
   protected ImageListAdapter getAdapter() {
-    return new ImageListAdapter(ImageListFragment.this, mImageList);
+    if (mAdapter == null) {
+      mAdapter = new ImageListAdapter(ImageListFragment.this);
+    }
+
+    return mAdapter;
   }
 
   @Override

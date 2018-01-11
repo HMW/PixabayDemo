@@ -45,6 +45,7 @@ public class ListPresenter implements  ListContract.Presenter {
 
   @Override
   public void loadMore(final String keyword) {
+    Log.d(TAG, "Load more images of " + keyword);
     int searchPage = ImageManager.getInstance().previousLoadedPage(keyword) + 1;
     ImageManager.getInstance().searchImage(keyword, searchPage);
   }

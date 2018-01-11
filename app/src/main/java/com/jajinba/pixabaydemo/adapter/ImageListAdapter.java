@@ -1,7 +1,7 @@
 package com.jajinba.pixabaydemo.adapter;
 
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,6 +13,7 @@ import com.jajinba.pixabaydemo.utils.ArrayUtils;
 import com.jajinba.pixabaydemo.view.ViewHolder;
 import com.jajinba.pixabaydemo.view.fragment.ListFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,9 +25,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
   private ListFragment mFragment;
   private List<PixabayImageObject> mImageList;
 
-  public ImageListAdapter(ListFragment fragment, List<PixabayImageObject> imageList) {
+  public ImageListAdapter(ListFragment fragment) {
     mFragment = fragment;
-    mImageList = imageList;
+    mImageList = new ArrayList<>();
   }
 
   @Override
@@ -60,23 +61,8 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
           holder.setVisibility(R.id.progress_bar, View.VISIBLE);
 
           mFragment.loadMore();
-
         }
       });
-    }
-  }
-
-  @Override
-  public void onBindViewHolder(ViewHolder holder, int position, List<Object> payloads) {
-    if (payloads != null && !payloads.isEmpty() &&
-        ("number".equals(payloads.get(0)))) {
-      // update the specific view
-
-    } else {
-      // I have already overridden  the other onBindViewHolder(ViewHolder, int)
-      // The method with 3 arguments is being called before the method with 2 args.
-      // so calling super will call that method with 2 arguments.
-      super.onBindViewHolder(holder,position,payloads);
     }
   }
 
@@ -92,48 +78,17 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
   }
 
   public void updateList(List<PixabayImageObject> imageList) {
-    DiffCallback diffCallback = new DiffCallback(mImageList, imageList);
-    DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+
+    Log.e(ImageListAdapter.class.getSimpleName(), "old list: " + ArrayUtils.getLengthSafe(new ArrayList<>(mImageList)));
+    Log.e(ImageListAdapter.class.getSimpleName(), "new list: " + ArrayUtils.getLengthSafe(imageList));
 
     mImageList.clear();
     mImageList.addAll(imageList);
-    diffResult.dispatchUpdatesTo(this);
   }
 
   public void searchFinished() {
     // FIXME update ui
     //notifyItemChanged(getItemCount(), );
-  }
-
-  private class DiffCallback extends DiffUtil.Callback {
-
-    private List<PixabayImageObject> mOldList;
-    private List<PixabayImageObject> mNewList;
-
-    DiffCallback(List<PixabayImageObject> oldList, List<PixabayImageObject> newList) {
-      mOldList = oldList;
-      mNewList = newList;
-    }
-
-    @Override
-    public int getOldListSize() {
-      return ArrayUtils.getLengthSafe(mOldList);
-    }
-
-    @Override
-    public int getNewListSize() {
-      return ArrayUtils.getLengthSafe(mNewList);
-    }
-
-    @Override
-    public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-      return mOldList.get(oldItemPosition).getId() == mNewList.get(newItemPosition).getId();
-    }
-
-    @Override
-    public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-      return mOldList.get(oldItemPosition).equals(mNewList.get(newItemPosition));
-    }
   }
 
 }

@@ -79,6 +79,9 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
   public void searchFinished(String keyword, List<PixabayImageObject> imageList) {
     Log.d(TAG, "Receive search finished callback");
 
+    if (mIsLoading) {
+      mIsLoading = false;
+    }
     getAdapter().searchFinished();
 
     if (TextUtils.isEmpty(keyword)) {
@@ -109,6 +112,7 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
   }
 
   private void resetUi() {
+    // FIXME should pass empty list and remove member image list variable mImageList
     getAdapter().notifyItemChanged(ArrayUtils.getLengthSafe(mImageList));
 
     if (mIsLoading) {
@@ -130,7 +134,7 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
 
     if (NEW_SEARCH.equals(lastOperation)) {
       getAdapter().updateList(mImageList);
-      //getAdapter().notifyDataSetChanged();
+      getAdapter().notifyDataSetChanged();
     } else if (LOAD_MORE.equals(lastOperation)) {
       // FIXME should get actual number
       int newImageCount = ArrayUtils.getLengthSafe(mImageList) % Constants.IMAGE_PER_PAGE == 0 ?
@@ -139,8 +143,8 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
 
       // FIXME not scroll to new image list smoothly...
       getAdapter().updateList(mImageList);
-      //getAdapter().notifyItemRangeInserted(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1,
-      //    newImageCount);
+      getAdapter().notifyItemRangeInserted(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1,
+          newImageCount);
       //mRecyclerView.scrollToPosition(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1);
     }
   }

@@ -134,7 +134,7 @@ public class ImageManager {
   }
 
   public void searchImage(final String keyword, final int page) {
-    if (hasKeywordSearchBefore(keyword)) {
+    if (hasKeywordSearchBefore(keyword) && mKeywordToLoadedPageMap.get(keyword) == page) {
       Log.d(TAG, "Keyword " + keyword + " has searched before, use previous list instead");
       setCurrentKeyword(keyword);
     } else {
