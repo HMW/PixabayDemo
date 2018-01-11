@@ -5,6 +5,7 @@ import android.support.annotation.StringDef;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.event.SearchResult;
 import com.jajinba.pixabaydemo.network.ApiClient;
@@ -170,7 +171,6 @@ public class ImageManager extends Observable {
           String errorMsg = response.errorBody().string();
           Log.e(TAG, "error msg: " + errorMsg);
 
-          // TODO check R.string.connect_to_server_fail
           EventBus.getDefault().post(new SearchResult(false, R.string.general_error));
         } catch (IOException e) {
           Log.e(TAG, "Fail to get error body content");
@@ -181,6 +181,11 @@ public class ImageManager extends Observable {
     @Override
     public void onError(Throwable e) {
       Log.e(TAG, e.getMessage());
+      if (e.getMessage().contains(Constants.FAIL_TO_CONNECT_TO_SERVER)) {
+        EventBus.getDefault().post(new SearchResult(false, R.string.connect_to_server_fail));
+      } else {
+        EventBus.getDefault().post(new SearchResult(false, R.string.general_error));
+      }
     }
 
     @Override
