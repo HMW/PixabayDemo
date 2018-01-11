@@ -2,30 +2,27 @@ package com.jajinba.pixabaydemo.model;
 
 
 import android.support.annotation.StringDef;
+import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
-import com.jajinba.pixabaydemo.event.SearchResult;
 import com.jajinba.pixabaydemo.network.ApiClient;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
 import com.jajinba.pixabaydemo.utils.SearchUtils;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import retrofit2.Response;
 
-public class ImageManager extends Observable {
+public class ImageManager {
   private static final String TAG = ImageManager.class.getSimpleName();
 
   private static final ImageManager ourInstance = new ImageManager();
@@ -41,6 +38,11 @@ public class ImageManager extends Observable {
 
   }
 
+  public interface Callback {
+    void onSuccess(String keyword, List<PixabayImageObject> imageList);
+    void onFailed(@StringRes int errorMsg);
+  }
+
   private
   @ImageManager.Operation
   String mLastOperation;
@@ -48,6 +50,7 @@ public class ImageManager extends Observable {
   private String mSearchingKeyword;// FIXME better naming
   private Map<String, List<PixabayImageObject>> mKeywordToImageListMap;
   private Map<String, Integer> mKeywordToLoadedPageMap;
+  private List<Callback> mCallbackList;
 
   public static ImageManager getInstance() {
     return ourInstance;
@@ -56,23 +59,13 @@ public class ImageManager extends Observable {
   private ImageManager() {
     mKeywordToImageListMap = new HashMap<>();
     mKeywordToLoadedPageMap = new HashMap<>();
-  }
-
-  public void setCurrentKeyword(String keyword) {
-    mCurrentKeyword = keyword;
-
-    setChanged();
-    notifyObservers();
+    mCallbackList = new ArrayList<>();
   }
 
   public
   @Operation
   String getLastOperation() {
     return mLastOperation;
-  }
-
-  public String getCurrentKeyword() {
-    return mCurrentKeyword;
   }
 
   public boolean hasKeywordSearchBefore(String keyword) {
@@ -92,7 +85,7 @@ public class ImageManager extends Observable {
       return new ArrayList<>();
     }
 
-    return mKeywordToImageListMap.get(keyword);
+    return new ArrayList<>(mKeywordToImageListMap.get(keyword));
   }
 
   private void setImageList(String keyword, List<PixabayImageObject> imageList) {
@@ -103,7 +96,7 @@ public class ImageManager extends Observable {
       // put new list to previous list to keep image order
       mKeywordToImageListMap.get(keyword).addAll(imageList);
       mLastOperation = LOAD_MORE;
-    } else {
+    } else if (ArrayUtils.isNotEmpty(imageList)) {
       mKeywordToImageListMap.put(keyword, imageList);
       mLastOperation = NEW_SEARCH;
     }
@@ -118,6 +111,22 @@ public class ImageManager extends Observable {
     setCurrentKeyword(keyword);
   }
 
+  public void setCallback(Callback callback) {
+    mCallbackList.add(callback);
+  }
+
+  private void setCurrentKeyword(String keyword) {
+    if (TextUtils.isEmpty(keyword) == false) {
+      mCurrentKeyword = keyword;
+
+      if (ArrayUtils.isNotEmpty(mCallbackList)) {
+        for (Callback callback : mCallbackList) {
+          callback.onSuccess(mCurrentKeyword, new ArrayList<>(mKeywordToImageListMap.get(keyword)));
+        }
+      }
+    }
+  }
+
   ///////////////////////////// API relatives /////////////////////////////
 
   public void searchImage(String keyword) {
@@ -125,12 +134,16 @@ public class ImageManager extends Observable {
   }
 
   public void searchImage(final String keyword, final int page) {
-    mSearchingKeyword = keyword;
+    if (hasKeywordSearchBefore(keyword)) {
+      Log.d(TAG, "Keyword " + keyword + " has searched before, use previous list instead");
+      setCurrentKeyword(keyword);
+    } else {
+      mSearchingKeyword = keyword;
+      Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(keyword) +
+          ", page: " + page);
 
-    Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(keyword) +
-        ", page: " + page);
-
-    ApiClient.getInstance().searchImages(keyword, page, mObserver);
+      ApiClient.getInstance().searchImages(keyword, page, mObserver);
+    }
   }
 
   private Observer<Response<PixabayResponseObject>> mObserver =
@@ -155,23 +168,31 @@ public class ImageManager extends Observable {
           return;
         }
 
-        if (ArrayUtils.isNotEmpty(object.getHits())) {
-          Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
+        List<PixabayImageObject> imageList = object.getHits();
+        if (ArrayUtils.isNotEmpty(imageList)) {
+          Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(imageList) + " images");
 
-          setImageList(mSearchingKeyword, object.getHits());
-          EventBus.getDefault().post(new SearchResult(true));
-
+          setImageList(mSearchingKeyword, imageList);
           mSearchingKeyword = "";
         } else {
           Log.d(TAG, "Received empty image list");
-          EventBus.getDefault().post(new SearchResult(false, R.string.no_image_found));
+
+          if (ArrayUtils.isNotEmpty(mCallbackList)) {
+            for (Callback callback : mCallbackList) {
+              callback.onFailed(R.string.no_image_found);
+            }
+          }
         }
       } else {
         try {
           String errorMsg = response.errorBody().string();
           Log.e(TAG, "error msg: " + errorMsg);
 
-          EventBus.getDefault().post(new SearchResult(false, R.string.general_error));
+          if (ArrayUtils.isNotEmpty(mCallbackList)) {
+            for (Callback callback : mCallbackList) {
+              callback.onFailed(R.string.general_error);
+            }
+          }
         } catch (IOException e) {
           Log.e(TAG, "Fail to get error body content");
         }
@@ -181,10 +202,12 @@ public class ImageManager extends Observable {
     @Override
     public void onError(Throwable e) {
       Log.e(TAG, e.getMessage());
-      if (e.getMessage().contains(Constants.FAIL_TO_CONNECT_TO_SERVER)) {
-        EventBus.getDefault().post(new SearchResult(false, R.string.connect_to_server_fail));
-      } else {
-        EventBus.getDefault().post(new SearchResult(false, R.string.general_error));
+
+      if (ArrayUtils.isNotEmpty(mCallbackList)) {
+        for (Callback callback : mCallbackList) {
+          callback.onFailed(e.getMessage().contains(Constants.FAIL_TO_CONNECT_TO_SERVER) ?
+              R.string.connect_to_server_fail : R.string.general_error);
+        }
       }
     }
 

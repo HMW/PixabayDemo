@@ -3,6 +3,7 @@ package com.jajinba.pixabaydemo.view.fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -11,14 +12,9 @@ import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
 import com.jajinba.pixabaydemo.contract.ListContract;
-import com.jajinba.pixabaydemo.event.SearchResult;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.presenter.ListPresenter;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -55,12 +51,6 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
   }
 
   @Override
-  public void onStart() {
-    super.onStart();
-    EventBus.getDefault().register(this);
-  }
-
-  @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
@@ -86,17 +76,24 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
   }
 
   @Override
-  public void onStop() {
-    super.onStop();
-    EventBus.getDefault().unregister(this);
-  }
+  public void searchFinished(String keyword, List<PixabayImageObject> imageList) {
+    Log.d(TAG, "Receive search finished callback");
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onSearchResult(SearchResult searchResult) {
-    searchFinished();
+    getAdapter().searchFinished();
 
-    if (searchResult.isSuccess() == false) {
+    if (TextUtils.isEmpty(keyword)) {
       resetUi();
+    } else {
+      mCurrentKeyword = keyword;
+      mImageList = imageList;
+
+      // FIXME check is attached?
+      if (isFragmentValid()) {
+        int imageCount = ArrayUtils.getLengthSafe(mImageList);
+        Log.d(TAG, imageCount + " image received");
+
+        updateUiState();
+      }
     }
   }
 
@@ -111,30 +108,12 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
     }
   }
 
-  @Override
-  public void updateImageList(String keyword, List<PixabayImageObject> imageList) {
-    mCurrentKeyword = keyword;
-    mImageList = imageList;
-
-    // FIXME check is attached?
-    if (isFragmentValid()) {
-      int imageCount = ArrayUtils.getLengthSafe(imageList);
-      Log.d(TAG, imageCount + " image received");
-
-      updateUiState();
-    }
-  }
-
   private void resetUi() {
     getAdapter().notifyItemChanged(ArrayUtils.getLengthSafe(mImageList));
 
     if (mIsLoading) {
       mIsLoading = false;
     }
-  }
-
-  public void searchFinished() {
-    getAdapter().searchFinished();
   }
 
   private void updateUiState() {
@@ -151,7 +130,7 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
 
     if (NEW_SEARCH.equals(lastOperation)) {
       getAdapter().updateList(mImageList);
-      getAdapter().notifyDataSetChanged();
+      //getAdapter().notifyDataSetChanged();
     } else if (LOAD_MORE.equals(lastOperation)) {
       // FIXME should get actual number
       int newImageCount = ArrayUtils.getLengthSafe(mImageList) % Constants.IMAGE_PER_PAGE == 0 ?
@@ -160,9 +139,9 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
 
       // FIXME not scroll to new image list smoothly...
       getAdapter().updateList(mImageList);
-      getAdapter().notifyItemRangeInserted(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1,
-          newImageCount);
-      mRecyclerView.scrollToPosition(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1);
+      //getAdapter().notifyItemRangeInserted(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1,
+      //    newImageCount);
+      //mRecyclerView.scrollToPosition(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1);
     }
   }
 }

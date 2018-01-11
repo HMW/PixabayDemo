@@ -1,31 +1,37 @@
 package com.jajinba.pixabaydemo.presenter;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.jajinba.pixabaydemo.contract.ListContract;
 import com.jajinba.pixabaydemo.model.ImageManager;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
+import com.jajinba.pixabaydemo.utils.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
-public class ListPresenter implements Observer, ListContract.Presenter {
+public class ListPresenter implements  ListContract.Presenter {
+  private static final String TAG = ListPresenter.class.getSimpleName();
 
   private ListContract.View mView;
 
   public ListPresenter(ListContract.View view) {
     mView = view;
-    ImageManager.getInstance().addObserver(this);
-  }
 
-  @Override
-  public void update(Observable observable, Object o) {
-    String currentKeyword = ImageManager.getInstance().getCurrentKeyword();
+    ImageManager.getInstance().setCallback(new ImageManager.Callback() {
+      @Override
+      public void onSuccess(String keyword, List<PixabayImageObject> imageList) {
+        Log.d(TAG, "onSuccess, image count:" + ArrayUtils.getLengthSafe(imageList));
+        mView.searchFinished(keyword, imageList);
+      }
 
-    mView.updateImageList(currentKeyword,
-        ImageManager.getInstance().getImageListWithKeyword(currentKeyword));
+      @Override
+      public void onFailed(int errorMsg) {
+        Log.d(TAG, "onFailed");
+        mView.searchFinished(null, null);
+      }
+    });
   }
 
   @Override

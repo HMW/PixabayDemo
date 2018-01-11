@@ -5,12 +5,14 @@ import com.jajinba.pixabaydemo.model.PixabayImageObject;
 
 import java.util.List;
 
+import io.reactivex.annotations.Nullable;
+
 import static com.jajinba.pixabaydemo.model.ImageManager.Operation;
 
 public interface ListContract {
 
   interface View {
-    void updateImageList(String keyword, List<PixabayImageObject> imageList);
+    void searchFinished(@Nullable String keyword, @Nullable List<PixabayImageObject> imageList);
   }
 
   interface Presenter {

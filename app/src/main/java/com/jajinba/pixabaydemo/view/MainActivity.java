@@ -4,6 +4,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -19,14 +20,9 @@ import com.jajinba.pixabaydemo.MainApplication;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ViewPagerAdapter;
 import com.jajinba.pixabaydemo.contract.MainActivityContract;
-import com.jajinba.pixabaydemo.event.SearchResult;
 import com.jajinba.pixabaydemo.presenter.MainActivityPresenter;
 import com.jajinba.pixabaydemo.view.fragment.ImageGridFragment;
 import com.jajinba.pixabaydemo.view.fragment.ImageListFragment;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,18 +52,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
     // init view
     initView();
-  }
-
-  @Override
-  protected void onStart() {
-    super.onStart();
-    EventBus.getDefault().register(this);
-  }
-
-  @Override
-  protected void onStop() {
-    super.onStop();
-    EventBus.getDefault().unregister(this);
   }
 
   @Override
@@ -105,15 +89,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     mTabLayout.setupWithViewPager(mViewPager);
   }
 
-  @Subscribe(threadMode = ThreadMode.MAIN)
-  public void onSearchResult(SearchResult searchResult) {
-    mProgressBar.setVisibility(View.INVISIBLE);
-
-    if (searchResult.isSuccess() == false) {
-      showErrorDialog(MainApplication.getInstance().getString(searchResult.getErrorMsg()));
-    }
-  }
-
   private void showErrorDialog(String errorMsg) {
     if (this.isFinishing() == false) {
       // TODO should create a custom dialog helper class
@@ -131,6 +106,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
   @Override
   public void searchStart() {
     mProgressBar.setVisibility(View.VISIBLE);
+  }
+
+  @Override
+  public void searchFinished(boolean isSuccess, @StringRes int errorMsg) {
+    mProgressBar.setVisibility(View.INVISIBLE);
+
+    if (isSuccess == false) {
+      showErrorDialog(MainApplication.getInstance().getString(errorMsg > 0 ?
+          errorMsg : R.string.general_error));
+    }
   }
 
   @Override

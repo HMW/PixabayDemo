@@ -1,5 +1,6 @@
 package com.jajinba.pixabaydemo.adapter;
 
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,7 +92,12 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
   }
 
   public void updateList(List<PixabayImageObject> imageList) {
-    mImageList = imageList;
+    DiffCallback diffCallback = new DiffCallback(mImageList, imageList);
+    DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+
+    mImageList.clear();
+    mImageList.addAll(imageList);
+    diffResult.dispatchUpdatesTo(this);
   }
 
   public void searchFinished() {
@@ -99,4 +105,36 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
     //notifyItemChanged(getItemCount(), );
   }
 
+  private class DiffCallback extends DiffUtil.Callback {
+
+    private List<PixabayImageObject> mOldList;
+    private List<PixabayImageObject> mNewList;
+
+    DiffCallback(List<PixabayImageObject> oldList, List<PixabayImageObject> newList) {
+      mOldList = oldList;
+      mNewList = newList;
+    }
+
+    @Override
+    public int getOldListSize() {
+      return ArrayUtils.getLengthSafe(mOldList);
+    }
+
+    @Override
+    public int getNewListSize() {
+      return ArrayUtils.getLengthSafe(mNewList);
+    }
+
+    @Override
+    public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+      return mOldList.get(oldItemPosition).getId() == mNewList.get(newItemPosition).getId();
+    }
+
+    @Override
+    public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+      return mOldList.get(oldItemPosition).equals(mNewList.get(newItemPosition));
+    }
+  }
+
 }
+

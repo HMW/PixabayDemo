@@ -70,7 +70,6 @@ public class ApiClient {
                        Observer<Response<PixabayResponseObject>> subscriber) {
     mApiService.searchImages(filtersMap)
         .subscribeOn(Schedulers.io())
-        .unsubscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(subscriber);
   }
