@@ -2,11 +2,13 @@
     <string name="app_name">PixabayDemo</string>
 
     <string name="ok">OK</string>
+    <string name="search_title">Search</string>
+    <string name="search_hint">hint</string>
 
     <string name="tab_title_list">List</string>
     <string name="tab_title_grid">Grid</string>
 
-    <string name="empty_state_notice">Empty state msg</string>
+    <string name="empty_state_notice">Start search from top left search icon</string>
 
     <string name="search_et_hint">Search with keyword</string>
     <string name="search_btn_title">Search</string>

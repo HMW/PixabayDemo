@@ -1,5 +1,6 @@
 package com.jajinba.pixabaydemo.view;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -8,10 +9,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.jajinba.pixabaydemo.MainApplication;
@@ -32,12 +33,10 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements MainActivityContract.View {
+public class MainActivity extends AppCompatActivity implements MainActivityContract.View,
+    SearchView.OnQueryTextListener {
 
-  @BindView(R.id.search_et)
-  EditText mSearchEditText;
   @BindView(R.id.progress_bar)
   ProgressBar mProgressBar;
   @BindView(R.id.tablayout)
@@ -71,6 +70,23 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     EventBus.getDefault().unregister(this);
   }
 
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.options_menu, menu);
+
+    // Associate searchable configuration with the SearchView
+    SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+    SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+    searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+    // show search complete button
+    searchView.setSubmitButtonEnabled(true);
+
+    searchView.setOnQueryTextListener(this);
+    return true;
+  }
+
   private void initView() {
     // TODO error handling, e.g., no network
 
@@ -98,18 +114,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     }
   }
 
-  @OnClick(R.id.search_btn)
-  public void search() {
-    if (TextUtils.isEmpty(mSearchEditText.getText().toString()) == false) {
-      mPresenter.search(mSearchEditText.getText().toString());
-
-      // hide keyboard after search
-      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.hideSoftInputFromWindow(mSearchEditText.getWindowToken(), 0);
-    }
-  }
-
-  public void showErrorDialog(String errorMsg) {
+  private void showErrorDialog(String errorMsg) {
     if (this.isFinishing() == false) {
       // TODO should create a custom dialog helper class
       new AlertDialog.Builder(this)
@@ -128,4 +133,15 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
     mProgressBar.setVisibility(View.VISIBLE);
   }
 
+  @Override
+  public boolean onQueryTextSubmit(String query) {
+    mPresenter.search(query);
+    return true;
+  }
+
+  @Override
+  public boolean onQueryTextChange(String newText) {
+    // TODO
+    return false;
+  }
 }
