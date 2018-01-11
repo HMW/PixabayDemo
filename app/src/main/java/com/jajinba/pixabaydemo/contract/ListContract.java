@@ -11,10 +11,6 @@ public interface ListContract {
 
   interface View {
     void updateImageList(String keyword, List<PixabayImageObject> imageList);
-
-    void showErrorMsgDialog(String errorMsg);
-
-    void searchFinished();
   }
 
   interface Presenter {

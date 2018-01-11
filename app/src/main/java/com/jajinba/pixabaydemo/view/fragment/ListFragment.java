@@ -11,10 +11,14 @@ import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
 import com.jajinba.pixabaydemo.contract.ListContract;
+import com.jajinba.pixabaydemo.event.SearchResult;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.presenter.ListPresenter;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
-import com.jajinba.pixabaydemo.view.MainActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -51,6 +55,12 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
   }
 
   @Override
+  public void onStart() {
+    super.onStart();
+    EventBus.getDefault().register(this);
+  }
+
+  @Override
   public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
@@ -73,6 +83,21 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putString(BUNDLE_IMAGE_KEY, mCurrentKeyword);
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    EventBus.getDefault().unregister(this);
+  }
+
+  @Subscribe(threadMode = ThreadMode.MAIN)
+  public void onSearchResult(SearchResult searchResult) {
+    searchFinished();
+
+    if (searchResult.isSuccess() == false) {
+      resetUi();
+    }
   }
 
   /**
@@ -100,14 +125,7 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
     }
   }
 
-  @Override
-  public void showErrorMsgDialog(String errorMsg) {
-    if (getActivity() != null && getActivity().isFinishing() == false &&
-        getActivity() instanceof MainActivity) {
-      MainActivity mainActivity = (MainActivity) getActivity();
-      mainActivity.showErrorDialogWithMsg(errorMsg);
-    }
-
+  private void resetUi() {
     getAdapter().notifyItemChanged(ArrayUtils.getLengthSafe(mImageList));
 
     if (mIsLoading) {
@@ -115,7 +133,6 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
     }
   }
 
-  @Override
   public void searchFinished() {
     getAdapter().searchFinished();
   }

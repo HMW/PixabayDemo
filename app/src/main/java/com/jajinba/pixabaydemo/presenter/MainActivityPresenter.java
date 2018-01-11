@@ -2,10 +2,8 @@ package com.jajinba.pixabaydemo.presenter;
 
 
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.util.Log;
 
-import com.jajinba.pixabaydemo.MainApplication;
 import com.jajinba.pixabaydemo.contract.MainActivityContract;
 import com.jajinba.pixabaydemo.model.ImageManager;
 
@@ -17,18 +15,6 @@ public class MainActivityPresenter implements MainActivityContract.Presenter {
 
   public MainActivityPresenter(MainActivityContract.View view) {
     mView = view;
-    ImageManager.getInstance().addSearchCallback(new ImageManager.SearchCallback() {
-      @Override
-      public void onSuccess() {
-        mView.searchDone();
-      }
-
-      @Override
-      public void onFail(@StringRes int errorMsg) {
-        mView.searchDone();
-        mView.showErrorDialog(MainApplication.getInstance().getString(errorMsg));
-      }
-    });
   }
 
   @Override

@@ -1,9 +1,7 @@
 package com.jajinba.pixabaydemo.presenter;
 
-import android.support.annotation.StringRes;
 import android.text.TextUtils;
 
-import com.jajinba.pixabaydemo.MainApplication;
 import com.jajinba.pixabaydemo.contract.ListContract;
 import com.jajinba.pixabaydemo.model.ImageManager;
 import com.jajinba.pixabaydemo.model.PixabayImageObject;
@@ -20,18 +18,6 @@ public class ListPresenter implements Observer, ListContract.Presenter {
   public ListPresenter(ListContract.View view) {
     mView = view;
     ImageManager.getInstance().addObserver(this);
-    ImageManager.getInstance().addSearchCallback(new ImageManager.SearchCallback() {
-      @Override
-      public void onSuccess() {
-        mView.searchFinished();
-      }
-
-      @Override
-      public void onFail(@StringRes int errorMsg) {
-        mView.searchFinished();
-        mView.showErrorMsgDialog(MainApplication.getInstance().getString(errorMsg));
-      }
-    });
   }
 
   @Override

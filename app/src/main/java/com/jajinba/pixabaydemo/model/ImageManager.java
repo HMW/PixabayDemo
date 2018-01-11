@@ -2,15 +2,16 @@ package com.jajinba.pixabaydemo.model;
 
 
 import android.support.annotation.StringDef;
-import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
+import com.jajinba.pixabaydemo.event.SearchResult;
 import com.jajinba.pixabaydemo.network.ApiClient;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
 import com.jajinba.pixabaydemo.utils.SearchUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,11 +40,6 @@ public class ImageManager extends Observable {
 
   }
 
-  public interface SearchCallback {
-    void onSuccess();
-    void onFail(@StringRes int  errorMsg);
-  }
-
   private
   @ImageManager.Operation
   String mLastOperation;
@@ -51,7 +47,6 @@ public class ImageManager extends Observable {
   private String mSearchingKeyword;// FIXME better naming
   private Map<String, List<PixabayImageObject>> mKeywordToImageListMap;
   private Map<String, Integer> mKeywordToLoadedPageMap;
-  private List<SearchCallback> mCallbackList;// FIXME should have better way to do this...
 
   public static ImageManager getInstance() {
     return ourInstance;
@@ -60,7 +55,6 @@ public class ImageManager extends Observable {
   private ImageManager() {
     mKeywordToImageListMap = new HashMap<>();
     mKeywordToLoadedPageMap = new HashMap<>();
-    mCallbackList = new ArrayList<>();
   }
 
   public void setCurrentKeyword(String keyword) {
@@ -132,26 +126,10 @@ public class ImageManager extends Observable {
   public void searchImage(final String keyword, final int page) {
     mSearchingKeyword = keyword;
 
-    // TODO handle all api query together, maybe a Handler and a HandlerThread
-    new Thread(new Runnable() {
-      @Override
-      public void run() {
-        Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(keyword) +
-            ", page: " + page);
+    Log.d(TAG, "Search image with keyword: " + SearchUtils.formatSearchKeyword(keyword) +
+        ", page: " + page);
 
-        ApiClient.getInstance().searchImages(keyword, page, mObserver);
-      }
-    }).start();
-  }
-
-  public void addSearchCallback(SearchCallback searchCallback) {
-    mCallbackList.add(searchCallback);
-  }
-
-  public void removeSearchCallback(SearchCallback searchCallback) {
-    if (mCallbackList.contains(searchCallback)) {
-      mCallbackList.remove(searchCallback);
-    }
+    ApiClient.getInstance().searchImages(keyword, page, mObserver);
   }
 
   private Observer<Response<PixabayResponseObject>> mObserver =
@@ -180,53 +158,20 @@ public class ImageManager extends Observable {
           Log.d(TAG, "Received " + ArrayUtils.getLengthSafe(object.getHits()) + " images");
 
           setImageList(mSearchingKeyword, object.getHits());
-
-          if (ArrayUtils.isNotEmpty(mCallbackList)) {
-            for (SearchCallback callback : mCallbackList) {
-              if (callback != null) {
-                callback.onSuccess();
-              }
-            }
-          }
+          EventBus.getDefault().post(new SearchResult(true));
 
           mSearchingKeyword = "";
         } else {
           Log.d(TAG, "Received empty image list");
-
-          if (ArrayUtils.isNotEmpty(mCallbackList)) {
-            for (SearchCallback callback : mCallbackList) {
-              if (callback != null) {
-                callback.onFail(R.string.no_image_found);
-              }
-            }
-          }
+          EventBus.getDefault().post(new SearchResult(false, R.string.no_image_found));
         }
       } else {
         try {
           String errorMsg = response.errorBody().string();
           Log.e(TAG, "error msg: " + errorMsg);
 
-          if (ArrayUtils.isEmpty(mCallbackList)) {
-            return;
-          }
-
-          if (errorMsg.contains(Constants.FAIL_TO_CONNECT_TO_SERVER)) {
-            if (ArrayUtils.isNotEmpty(mCallbackList)) {
-              for (SearchCallback callback : mCallbackList) {
-                if (callback != null) {
-                  callback.onFail(R.string.connect_to_server_fail);
-                }
-              }
-            }
-          } else {
-            if (ArrayUtils.isNotEmpty(mCallbackList)) {
-              for (SearchCallback callback : mCallbackList) {
-                if (callback != null) {
-                  callback.onFail(R.string.general_error);
-                }
-              }
-            }
-          }
+          // TODO check R.string.connect_to_server_fail
+          EventBus.getDefault().post(new SearchResult(false, R.string.general_error));
         } catch (IOException e) {
           Log.e(TAG, "Fail to get error body content");
         }
@@ -243,5 +188,4 @@ public class ImageManager extends Observable {
       Log.d(TAG, "onComplete");
     }
   };
-
 }

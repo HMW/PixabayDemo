@@ -63,7 +63,6 @@ public class ApiClient {
     params.put(API_PAGE, String.valueOf(page));
     params.put(API_IMAGE_PER_PAGE, String.valueOf(Constants.IMAGE_PER_PAGE));
     params.put(API_KEYWORD, SearchUtils.formatSearchKeyword(keyword));
-
     apiCall(params, subscriber);
   }
 

@@ -7,10 +7,6 @@ public interface MainActivityContract {
 
   interface View {
     void searchStart();
-
-    void searchDone();
-
-    void showErrorDialog(String errorMsg);
   }
 
   interface Presenter {
