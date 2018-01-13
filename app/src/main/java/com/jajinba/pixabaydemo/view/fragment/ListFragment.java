@@ -16,6 +16,7 @@ import com.jajinba.pixabaydemo.model.PixabayImageObject;
 import com.jajinba.pixabaydemo.presenter.ListPresenter;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -37,9 +38,8 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
 
   private ListContract.Presenter mPresenter;
 
+  // cache keyword to restore image list after screen rotated
   protected String mCurrentKeyword;
-  protected List<PixabayImageObject> mImageList;
-  private boolean mIsLoading = false;
 
   protected abstract ImageListAdapter getAdapter();
 
@@ -57,15 +57,19 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
     if (mPresenter == null) {
       mPresenter = new ListPresenter(this);
     }
+    mRecyclerView.setAdapter(getAdapter());
+    mRecyclerView.setLayoutManager(getLayoutManager());
 
     // restore state before rotation
     if (savedInstanceState != null) {
+      // get previous keyword
       mCurrentKeyword = savedInstanceState.getString(BUNDLE_IMAGE_KEY);
+
+      // clear instance state
       savedInstanceState.clear();
 
-      mImageList = mPresenter.getImageList(mCurrentKeyword);
-
-      updateUiState();
+      // restore ui
+      searchFinished(mCurrentKeyword, mPresenter.getImageList(mCurrentKeyword));
     }
   }
 
@@ -79,73 +83,52 @@ public abstract class ListFragment extends BaseFragment implements ListContract.
   public void searchFinished(String keyword, List<PixabayImageObject> imageList) {
     Log.d(TAG, "Receive search finished callback");
 
-    if (mIsLoading) {
-      mIsLoading = false;
+    // FIXME check is attached?
+    if (isFragmentValid() == false) {
+      return;
     }
-    getAdapter().searchFinished();
+
+    Log.d(TAG, ArrayUtils.getLengthSafe(imageList) + " image received");
+
+    mCurrentKeyword = keyword;
 
     if (TextUtils.isEmpty(keyword)) {
       resetUi();
     } else {
-      mCurrentKeyword = keyword;
-      mImageList = imageList;
-
-      // FIXME check is attached?
-      if (isFragmentValid()) {
-        int imageCount = ArrayUtils.getLengthSafe(mImageList);
-        Log.d(TAG, imageCount + " image received");
-
-        updateUiState();
-      }
+      updateUi(imageList);
     }
   }
 
   /**
-   * Load more request from adapter (button clicked)
+   * Load more request from adapter
    */
-  // FIXME should define in interface
   public void loadMore() {
-    if (mIsLoading == false) {
-      mPresenter.loadMore(mCurrentKeyword);
-      mIsLoading = true;
-    }
+    mPresenter.loadMore(mCurrentKeyword);
   }
 
   private void resetUi() {
-    // FIXME should pass empty list and remove member image list variable mImageList
-    getAdapter().notifyItemChanged(ArrayUtils.getLengthSafe(mImageList));
-
-    if (mIsLoading) {
-      mIsLoading = false;
-    }
+    getAdapter().updateList(new ArrayList<PixabayImageObject>());
+    getAdapter().notifyDataSetChanged();
   }
 
-  private void updateUiState() {
-    mEmptyStateTextView.setVisibility(ArrayUtils.isNotEmpty(mImageList) ? View.GONE : View.VISIBLE);
-    mRecyclerView.setVisibility(ArrayUtils.isNotEmpty(mImageList) ? View.VISIBLE : View.GONE);
-
-    mRecyclerView.setAdapter(getAdapter());
-    mRecyclerView.setLayoutManager(getLayoutManager());
-    //mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-    mRecyclerView.setItemAnimator(null);
+  private void updateUi(List<PixabayImageObject> imageList) {
+    mEmptyStateTextView.setVisibility(ArrayUtils.isEmpty(imageList) ? View.VISIBLE : View.GONE);
+    mRecyclerView.setVisibility(ArrayUtils.isNotEmpty(imageList) ? View.VISIBLE : View.GONE);
 
     @Operation String lastOperation = mPresenter.getLastOperation();
     Log.d(TAG, "update ui state with operation: " + lastOperation);
 
+    getAdapter().updateList(imageList);
     if (NEW_SEARCH.equals(lastOperation)) {
-      getAdapter().updateList(mImageList);
       getAdapter().notifyDataSetChanged();
     } else if (LOAD_MORE.equals(lastOperation)) {
-      // FIXME should get actual number
-      int newImageCount = ArrayUtils.getLengthSafe(mImageList) % Constants.IMAGE_PER_PAGE == 0 ?
-          ArrayUtils.getLengthSafe(mImageList) - Constants.IMAGE_PER_PAGE :
-          ArrayUtils.getLengthSafe(mImageList) % Constants.IMAGE_PER_PAGE;
+      int oldImageCount = ArrayUtils.getLengthSafe(imageList) % Constants.IMAGE_PER_PAGE == 0 ?
+          ArrayUtils.getLengthSafe(imageList) - Constants.IMAGE_PER_PAGE :
+          ArrayUtils.getLengthSafe(imageList) % Constants.IMAGE_PER_PAGE;
 
-      // FIXME not scroll to new image list smoothly...
-      getAdapter().updateList(mImageList);
-      getAdapter().notifyItemRangeInserted(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1,
-          newImageCount);
-      //mRecyclerView.scrollToPosition(ArrayUtils.getLengthSafe(mImageList) - newImageCount + 1);
+      getAdapter().notifyItemRangeInserted(
+          oldImageCount + 1,
+          ArrayUtils.getLengthSafe(imageList) - oldImageCount);
     }
   }
 }

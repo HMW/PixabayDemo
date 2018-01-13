@@ -86,10 +86,5 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
     mImageList.addAll(imageList);
   }
 
-  public void searchFinished() {
-    // FIXME update ui
-    //notifyItemChanged(getItemCount(), );
-  }
-
 }
 
