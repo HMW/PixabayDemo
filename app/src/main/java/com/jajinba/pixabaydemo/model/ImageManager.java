@@ -46,7 +46,6 @@ public class ImageManager {
   private
   @ImageManager.Operation
   String mLastOperation;
-  private String mCurrentKeyword;// FIXME better naming
   private String mSearchingKeyword;// FIXME better naming
   private Map<String, List<PixabayImageObject>> mKeywordToImageListMap;
   private Map<String, Integer> mKeywordToLoadedPageMap;
@@ -116,13 +115,9 @@ public class ImageManager {
   }
 
   private void setCurrentKeyword(String keyword) {
-    if (TextUtils.isEmpty(keyword) == false) {
-      mCurrentKeyword = keyword;
-
-      if (ArrayUtils.isNotEmpty(mCallbackList)) {
-        for (Callback callback : mCallbackList) {
-          callback.onSuccess(mCurrentKeyword, new ArrayList<>(mKeywordToImageListMap.get(keyword)));
-        }
+    if (TextUtils.isEmpty(keyword) == false && ArrayUtils.isNotEmpty(mCallbackList)) {
+      for (Callback callback : mCallbackList) {
+        callback.onSuccess(keyword, new ArrayList<>(mKeywordToImageListMap.get(keyword)));
       }
     }
   }

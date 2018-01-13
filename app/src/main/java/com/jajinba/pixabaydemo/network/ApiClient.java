@@ -25,8 +25,6 @@ public class ApiClient {
   private static final String API_IMAGE_PER_PAGE = "per_page";
   private static final String API_KEYWORD = "q";
 
-  // TODO should maintain a api call(request) map here if we need to cancel api request, therefore
-  // I choose to use Singleton pattern here
   private static volatile ApiClient sClient;
 
   private ApiService mApiService;
