@@ -11,6 +11,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -33,6 +34,8 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements MainActivityContract.View,
     SearchView.OnQueryTextListener {
 
+  private static final String TAG = MainActivity.class.getSimpleName();
+
   @BindView(R.id.progress_bar)
   ProgressBar mProgressBar;
   @BindView(R.id.tablayout)
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
   ViewPager mViewPager;
 
   private MainActivityContract.Presenter mPresenter;
+  private boolean isSearching = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
   @Override
   public void searchFinished(boolean isSuccess, @StringRes int errorMsg) {
+    isSearching = false;
     mProgressBar.setVisibility(View.INVISIBLE);
 
     if (isSuccess == false) {
@@ -120,7 +125,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
   @Override
   public boolean onQueryTextSubmit(String query) {
+    if (isSearching) {
+      return true;
+    }
+
+    Log.d(TAG, "Submit search query");
     mPresenter.search(query);
+    isSearching = true;
+
     return true;
   }
 
