@@ -78,10 +78,6 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
   }
 
   public void updateList(List<PixabayImageObject> imageList) {
-
-    Log.e(ImageListAdapter.class.getSimpleName(), "old list: " + ArrayUtils.getLengthSafe(new ArrayList<>(mImageList)));
-    Log.e(ImageListAdapter.class.getSimpleName(), "new list: " + ArrayUtils.getLengthSafe(imageList));
-
     mImageList.clear();
     mImageList.addAll(imageList);
   }
