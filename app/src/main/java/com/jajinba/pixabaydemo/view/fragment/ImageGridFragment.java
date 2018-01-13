@@ -9,6 +9,8 @@ import com.jajinba.pixabaydemo.adapter.ImageListAdapter;
 
 public class ImageGridFragment extends ListFragment {
 
+  private static final int SPAN_COUNT = 2;
+
   private ImageListAdapter mAdapter;
 
   public static ImageGridFragment newInstance() {
@@ -26,7 +28,7 @@ public class ImageGridFragment extends ListFragment {
 
   @Override
   protected RecyclerView.LayoutManager getLayoutManager() {
-    return new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+    return new StaggeredGridLayoutManager(SPAN_COUNT, StaggeredGridLayoutManager.VERTICAL);
   }
 
   @Override
