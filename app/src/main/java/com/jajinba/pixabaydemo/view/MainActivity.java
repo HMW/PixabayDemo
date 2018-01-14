@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
   @Override
   public void searchStart() {
+    isSearching = true;
     mProgressBar.setVisibility(View.VISIBLE);
   }
 
@@ -131,7 +132,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityContr
 
     Log.d(TAG, "Submit search query");
     mPresenter.search(query);
-    isSearching = true;
 
     return true;
   }
