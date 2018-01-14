@@ -6,7 +6,6 @@ import android.support.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.jajinba.pixabaydemo.Constants;
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.network.ApiClient;
 import com.jajinba.pixabaydemo.utils.ArrayUtils;
@@ -21,6 +20,9 @@ import java.util.Map;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import retrofit2.Response;
+
+import static com.jajinba.pixabaydemo.Constants.FAIL_TO_CONNECT_TO_SERVER;
+import static com.jajinba.pixabaydemo.Constants.PAGE_OUT_OR_RANGE;
 
 public class ImageManager {
   private static final String TAG = ImageManager.class.getSimpleName();
@@ -156,6 +158,16 @@ public class ImageManager {
         return;
       }
 
+      try {
+        if (response.errorBody() != null &&
+            response.errorBody().string().contains(PAGE_OUT_OR_RANGE)) {
+          // FIXME should define a callback to notify this response and refresh UI
+          return;
+        }
+      } catch (IOException e) {
+        Log.e(TAG, e.getMessage());
+      }
+
       if (response.isSuccessful()) {
         PixabayResponseObject object = response.body();
         if (object == null) {
@@ -200,7 +212,7 @@ public class ImageManager {
 
       if (ArrayUtils.isNotEmpty(mCallbackList)) {
         for (Callback callback : mCallbackList) {
-          callback.onFailed(e.getMessage().contains(Constants.FAIL_TO_CONNECT_TO_SERVER) ?
+          callback.onFailed(e.getMessage().contains(FAIL_TO_CONNECT_TO_SERVER) ?
               R.string.connect_to_server_fail : R.string.general_error);
         }
       }

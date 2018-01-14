@@ -1,7 +1,6 @@
 package com.jajinba.pixabaydemo.adapter;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,6 +14,8 @@ import com.jajinba.pixabaydemo.view.fragment.ListFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.jajinba.pixabaydemo.Constants.IMAGE_PER_PAGE;
 
 
 public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
@@ -69,7 +70,9 @@ public class ImageListAdapter extends RecyclerView.Adapter<ViewHolder> {
   @Override
   public int getItemCount() {
     // +1 for bottom loading item
-    return ArrayUtils.getLengthSafe(mImageList) + 1;
+    return ArrayUtils.getLengthSafe(mImageList) % IMAGE_PER_PAGE == 0 ?
+        ArrayUtils.getLengthSafe(mImageList) + 1 :
+        ArrayUtils.getLengthSafe(mImageList);
   }
 
   @Override
