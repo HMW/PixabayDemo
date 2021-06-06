@@ -1,4 +1,4 @@
-package com.jajinba.pixabaydemo.model;
+package com.jajinba.pixabaydemo.model
 
 /*
 {
@@ -36,24 +36,8 @@ package com.jajinba.pixabaydemo.model;
   ]
 }
  */
-
-import java.util.List;
-
-public class PixabayResponseObject {
-
-  private int total;
-  private int totalHits;
-  private List<PixabayImageObject> hits;
-
-  public int getTotal() {
-    return total;
-  }
-
-  public int getTotalHits() {
-    return totalHits;
-  }
-
-  public List<PixabayImageObject> getHits() {
-    return hits;
-  }
-}
+data class PixabayResponseObject(
+    val total: Int = 0,
+    val totalHits: Int = 0,
+    val hits: MutableList<PixabayImageObject>? = null
+)
