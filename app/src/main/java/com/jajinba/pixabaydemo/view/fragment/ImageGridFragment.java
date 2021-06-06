@@ -1,8 +1,8 @@
 package com.jajinba.pixabaydemo.view.fragment;
 
 
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.jajinba.pixabaydemo.R;
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter;

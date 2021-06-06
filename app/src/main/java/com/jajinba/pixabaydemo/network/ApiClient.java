@@ -1,7 +1,7 @@
 package com.jajinba.pixabaydemo.network;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.jajinba.pixabaydemo.BuildConfig;
 import com.jajinba.pixabaydemo.Constants;

@@ -1,8 +1,8 @@
 package com.jajinba.pixabaydemo.model;
 
 
-import android.support.annotation.StringDef;
-import android.support.annotation.StringRes;
+import androidx.annotation.StringDef;
+import androidx.annotation.StringRes;
 import android.text.TextUtils;
 import android.util.Log;
 
