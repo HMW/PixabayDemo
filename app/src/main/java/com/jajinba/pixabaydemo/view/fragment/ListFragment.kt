@@ -41,9 +41,17 @@ abstract class ListFragment : BaseFragment(R.layout.fragment_list), ListContract
     super.onViewCreated(view, savedInstanceState)
     adapter = ImageListAdapter(context, adapterCallback)
     binding = FragmentListBinding.bind(view)
-    binding?.recyclerView?.let {
-      it.adapter = adapter
-      it.layoutManager = getLayoutManager()
+    binding?.recyclerView?.let { recyclerView ->
+      recyclerView.adapter = adapter
+      recyclerView.layoutManager = getLayoutManager()
+      recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+          super.onScrolled(recyclerView, dx, dy)
+          if (recyclerView.canScrollVertically(1).not()) {
+            mCurrentKeyword?.let { mPresenter.loadMore(it) }
+          }
+        }
+      })
     }
     mPresenter = ListPresenter(this)
 
