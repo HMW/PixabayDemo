@@ -5,19 +5,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.View
-import android.widget.ProgressBar
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.viewpager.widget.ViewPager
-import butterknife.ButterKnife
-import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.jajinba.pixabaydemo.MainApplication
 import com.jajinba.pixabaydemo.R
 import com.jajinba.pixabaydemo.adapter.ViewPagerAdapter
 import com.jajinba.pixabaydemo.contract.MainActivityContract
+import com.jajinba.pixabaydemo.databinding.ActivityMainBinding
 import com.jajinba.pixabaydemo.presenter.MainActivityPresenter
 import com.jajinba.pixabaydemo.view.fragment.ImageGridFragment
 import com.jajinba.pixabaydemo.view.fragment.ImageListFragment
@@ -25,17 +23,15 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), MainActivityContract.View,
     SearchView.OnQueryTextListener {
-    var mProgressBar: ProgressBar? = null
-    var mTabLayout: TabLayout? = null
-    var mViewPager: ViewPager? = null
+
+    private lateinit var binding: ActivityMainBinding
     private var mPresenter: MainActivityContract.Presenter? = null
     private var isSearching = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        // TODO move to base activity
-        ButterKnife.bind(this)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // init view
         initView()
@@ -64,17 +60,16 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View,
         fragmentList.add(ImageGridFragment.newInstance())
 
         // setup ViewPager
-        mViewPager = findViewById(R.id.viewpager)
-        mViewPager?.adapter = ViewPagerAdapter(
-            supportFragmentManager, this,
-            fragmentList
+        binding.viewPager.adapter = ViewPagerAdapter(
+            supportFragmentManager,
+            fragmentList,
+            lifecycle
         )
 
         // setup TabLayout
-        mTabLayout = findViewById(R.id.tablayout)
-        mTabLayout?.setupWithViewPager(mViewPager)
-
-        mProgressBar = findViewById(R.id.progress_bar)
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = getText(if (position == 0) R.string.tab_title_list else R.string.tab_title_grid)
+        }.attach()
     }
 
     private fun showErrorDialog(errorMsg: String?) {
@@ -82,7 +77,7 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View,
             // TODO should create a custom dialog helper class
             AlertDialog.Builder(this)
                 .setMessage(errorMsg)
-                .setPositiveButton(R.string.ok) { dialogInterface, i ->
+                .setPositiveButton(R.string.ok) { _, _ ->
                     // do nothing
                 }.create().show()
         }
@@ -90,13 +85,13 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View,
 
     override fun searchStart() {
         isSearching = true
-        mProgressBar?.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     override fun searchFinished(isSuccess: Boolean, @StringRes errorMsg: Int) {
         Log.d(TAG, "searchFinished: $isSuccess")
         isSearching = false
-        mProgressBar?.visibility = View.INVISIBLE
+        binding.progressBar.visibility = View.INVISIBLE
         if (isSuccess.not()) {
             showErrorDialog(
                 MainApplication.getInstance()?.getString(errorMsg)

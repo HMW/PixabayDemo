@@ -8,7 +8,7 @@
     tools:context="com.jajinba.pixabaydemo.view.MainActivity">
 
     <ProgressBar
-        android:id="@+id/progress_bar"
+        android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -16,12 +16,12 @@
         android:indeterminate="true"/>
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tablayout"
+        android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewpager"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

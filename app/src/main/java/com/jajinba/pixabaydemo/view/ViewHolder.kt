@@ -16,7 +16,9 @@ import java.lang.ref.WeakReference
  * ViewHolder Best Practice helper class
  */
 class ViewHolder(
-    itemView: View, parent: ViewGroup?, clickListener: OnRecyclerViewItemClickListener?,
+    itemView: View,
+    parent: ViewGroup?,
+    clickListener: OnRecyclerViewItemClickListener?,
     longClickListener: OnRecyclerViewItemLongClickListener?
 ) : RecyclerView.ViewHolder(itemView) {
     private val mViews: SparseArray<View?>?
@@ -85,7 +87,7 @@ class ViewHolder(
      * On item click listener
      */
     interface OnRecyclerViewItemClickListener : View.OnClickListener {
-        open fun onItemClick(holder: ViewHolder?, position: Int)
+        fun onItemClick(holder: ViewHolder?, position: Int)
         override fun onClick(v: View?)
     }
 
@@ -116,7 +118,7 @@ class ViewHolder(
      * On item long click listener
      */
     interface OnRecyclerViewItemLongClickListener : OnLongClickListener {
-        open fun onItemLongClick(holder: ViewHolder?, position: Int)
+        fun onItemLongClick(holder: ViewHolder?, position: Int)
     }
 
     private class OnViewHolderItemLongClickListener(listener: OnRecyclerViewItemLongClickListener?) :

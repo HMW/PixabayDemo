@@ -33,23 +33,23 @@ class ImageListAdapter(private val mFragment: ListFragment) : RecyclerView.Adapt
         if (getItemViewType(position) == VIEW_TYPE_ITEM) {
             if (mFragment.isFragmentValid() && ArrayUtils.getLengthSafe(mImageList) > position) {
                 Glide.with(mFragment)
-                    .load(mImageList.get(position).getWebformatUrl())
+                    .load(mImageList[position].webformatUrl)
                     .placeholder(R.drawable.placeholder) // workaround, refer glide issue 542 on Github
                     .dontAnimate()
                     .override(
-                        mImageList.get(position).getWebformatWidth(),
-                        mImageList.get(position).getWebformatHeight()
+                        mImageList[position].webformatWidth,
+                        mImageList[position].webformatHeight
                     )
                     .into(holder.getView<View?>(R.id.image_view) as ImageView)
             }
         } else if (getItemViewType(position) == VIEW_TYPE_LOADING) {
             holder.setVisibility(R.id.load_more_textview, View.VISIBLE)
-            holder.setVisibility(R.id.progress_bar, View.GONE)
+            holder.setVisibility(R.id.progressBar, View.GONE)
 
             // TODO should define setOnClickListener in ViewHolder
             holder.getView<View?>(R.id.load_more_textview)?.setOnClickListener {
                 holder.setVisibility(R.id.load_more_textview, View.GONE)
-                holder.setVisibility(R.id.progress_bar, View.VISIBLE)
+                holder.setVisibility(R.id.progressBar, View.VISIBLE)
                 mFragment.loadMore()
             }
         }

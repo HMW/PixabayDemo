@@ -26,125 +26,43 @@ import com.google.gson.annotations.SerializedName
     "user": "Josch13",
     "userImageURL": "https://static.pixabay.com/user/2013/11/05/02-10-23-764_250x250.jpg",
 }
- */   class PixabayImageObject {
-    private val id = 0
+ */
+data class PixabayImageObject(
+    val id: Int = 0,
 
     @SerializedName("pageURL")
-    private val pageUrl: String? = null
-    private val type: String? = null
-    private val tags: String? = null
+    val pageUrl: String? = null,
+    val type: String? = null,
+    val tags: String? = null,
 
     @SerializedName("previewURL")
-    private val previewUrl: String? = null
+    val previewUrl: String? = null,
 
     @SerializedName("previewWidth")
-    private val previewWidth = 0
+    val previewWidth: Int = 0,
 
     @SerializedName("previewHeight")
-    private val previewHeight = 0
+    val previewHeight: Int = 0,
 
     @SerializedName("webformatURL")
-    private val webformatUrl: String? = null
-    private val webformatWidth = 0
-    private val webformatHeight = 0
-    private val imageWidth = 0
-    private val imageHeight = 0
-    private val imageSize = 0
-    private val views = 0
-    private val downloads = 0
-    private val favorites = 0
-    private val likes = 0
-    private val comments = 0
+    val webformatUrl: String? = null,
+    val webformatWidth: Int = 0,
+    val webformatHeight: Int = 0,
+    val imageWidth: Int = 0,
+    val imageHeight: Int = 0,
+    val imageSize: Int = 0,
+    val views: Int = 0,
+    val downloads: Int = 0,
+    val favorites: Int = 0,
+    val likes: Int = 0,
+    val comments: Int = 0,
 
     @SerializedName("user_id")
-    private val userId = 0
+    val userId: Int = 0,
 
     @SerializedName("user")
-    private val userName: String? = null
+    val userName: String? = null,
 
     @SerializedName("userImageURL")
-    private val userImageUrl: String? = null
-    fun getId(): Int {
-        return id
-    }
-
-    fun getPageUrl(): String? {
-        return pageUrl
-    }
-
-    fun getType(): String? {
-        return type
-    }
-
-    fun getTags(): String? {
-        return tags
-    }
-
-    fun getPreviewUrl(): String? {
-        return previewUrl
-    }
-
-    fun getPreviewWidth(): Int {
-        return previewWidth
-    }
-
-    fun getPreviewHeight(): Int {
-        return previewHeight
-    }
-
-    fun getWebformatUrl(): String? {
-        return webformatUrl
-    }
-
-    fun getWebformatWidth(): Int {
-        return webformatWidth
-    }
-
-    fun getWebformatHeight(): Int {
-        return webformatHeight
-    }
-
-    fun getImageWidth(): Int {
-        return imageWidth
-    }
-
-    fun getImageHeight(): Int {
-        return imageHeight
-    }
-
-    fun getImageSize(): Int {
-        return imageSize
-    }
-
-    fun getViews(): Int {
-        return views
-    }
-
-    fun getDownloads(): Int {
-        return downloads
-    }
-
-    fun getFavorites(): Int {
-        return favorites
-    }
-
-    fun getLikes(): Int {
-        return likes
-    }
-
-    fun getComments(): Int {
-        return comments
-    }
-
-    fun getUserId(): Int {
-        return userId
-    }
-
-    fun getUserName(): String? {
-        return userName
-    }
-
-    fun getUserImageUrl(): String? {
-        return userImageUrl
-    }
-}
+    val userImageUrl: String? = null
+)

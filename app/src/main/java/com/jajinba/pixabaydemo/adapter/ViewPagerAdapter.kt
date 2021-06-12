@@ -1,26 +1,24 @@
 package com.jajinba.pixabaydemo.adapter
 
-import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import com.jajinba.pixabaydemo.R
+import androidx.lifecycle.Lifecycle
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.jajinba.pixabaydemo.utils.ArrayUtils
 
 class ViewPagerAdapter(
     fm: FragmentManager,
-    private val mContext: Context,
-    private val mFragmentList: MutableList<Fragment>
-) : FragmentPagerAdapter(fm) {
-    override fun getItem(position: Int): Fragment {
-        return mFragmentList[position]
-    }
+    private val mFragmentList: MutableList<Fragment>,
+    lifecycle: Lifecycle
+) : FragmentStateAdapter(fm, lifecycle) {
 
-    override fun getCount(): Int {
+    override fun getItemCount(): Int {
         return ArrayUtils.getLengthSafe(mFragmentList)
     }
 
-    override fun getPageTitle(position: Int): CharSequence {
-        return mContext.getString(if (position == 0) R.string.tab_title_list else R.string.tab_title_grid)
+    override fun createFragment(position: Int): Fragment {
+        return mFragmentList[position]
     }
+
+
 }

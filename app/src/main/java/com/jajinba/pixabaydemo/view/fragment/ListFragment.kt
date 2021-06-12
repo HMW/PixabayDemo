@@ -4,41 +4,34 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.jajinba.pixabaydemo.Constants
 import com.jajinba.pixabaydemo.R
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter
 import com.jajinba.pixabaydemo.contract.ListContract
+import com.jajinba.pixabaydemo.databinding.FragmentListBinding
 import com.jajinba.pixabaydemo.model.ImageManager
 import com.jajinba.pixabaydemo.model.PixabayImageObject
 import com.jajinba.pixabaydemo.presenter.ListPresenter
 import com.jajinba.pixabaydemo.utils.ArrayUtils
 import java.util.*
 
-abstract class ListFragment : BaseFragment(), ListContract.View {
-    var mEmptyStateTextView: TextView? = null
-    var mRecyclerView: RecyclerView? = null
-    private var mPresenter = ListPresenter(this)
+abstract class ListFragment : BaseFragment(R.layout.fragment_list), ListContract.View {
+
+    private var binding: FragmentListBinding? = null
+    private lateinit var mPresenter: ListPresenter
 
     // cache keyword to restore image list after screen rotated
     private var mCurrentKeyword: String? = null
     protected abstract fun getAdapter(): ImageListAdapter
     protected abstract fun getLayoutManager(): RecyclerView.LayoutManager?
-    override fun getContentLayout(): Int {
-        return R.layout.fragment_list
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-//        if (mPresenter == null) {
-//            mPresenter = ListPresenter(this)
-//        }
-        mRecyclerView = view.findViewById(R.id.recycler_view)
-        mRecyclerView?.adapter = getAdapter()
-        mRecyclerView?.layoutManager = getLayoutManager()
-
-        mEmptyStateTextView = view.findViewById(R.id.empty_state_tv)
+        binding = FragmentListBinding.bind(view)
+        binding?.recyclerView?.adapter = getAdapter()
+        binding?.recyclerView?.layoutManager = getLayoutManager()
+        mPresenter = ListPresenter(this)
 
         // restore state before rotation
         if (savedInstanceState != null) {
@@ -58,6 +51,11 @@ abstract class ListFragment : BaseFragment(), ListContract.View {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putString(BUNDLE_IMAGE_KEY, mCurrentKeyword)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     override fun searchFinished(keyword: String, imageList: MutableList<PixabayImageObject>) {
@@ -91,14 +89,14 @@ abstract class ListFragment : BaseFragment(), ListContract.View {
     }
 
     private fun updateUi(imageList: MutableList<PixabayImageObject>) {
-        mEmptyStateTextView?.visibility =
+        binding?.tvEmptyState?.visibility =
             if (imageList.isEmpty()) View.VISIBLE else View.GONE
-        mRecyclerView?.visibility =
+        binding?.recyclerView?.visibility =
             if (imageList.isNotEmpty()) View.VISIBLE else View.GONE
         @ImageManager.Operation val lastOperation = mPresenter.getLastOperation()
         Log.d(TAG, "hm] update ui state with operation: $lastOperation, image count: ${imageList.size}")
-        Log.d(TAG, "hm] empty view visible: ${(mEmptyStateTextView?.visibility == View.VISIBLE)}")
-        Log.d(TAG, "hm] recycler view visible: ${(mRecyclerView?.visibility == View.VISIBLE)}")
+        Log.d(TAG, "hm] empty view visible: ${(binding?.tvEmptyState?.visibility == View.VISIBLE)}")
+        Log.d(TAG, "hm] recycler view visible: ${(binding?.recyclerView?.visibility == View.VISIBLE)}")
         getAdapter()?.updateList(imageList)
         if (ImageManager.NEW_SEARCH == lastOperation) {
             getAdapter().notifyDataSetChanged()
