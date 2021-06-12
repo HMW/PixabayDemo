@@ -22,98 +22,100 @@ import com.jajinba.pixabaydemo.view.fragment.ImageListFragment
 import java.util.*
 
 class MainActivity : AppCompatActivity(), MainActivityContract.View,
-    SearchView.OnQueryTextListener {
+  SearchView.OnQueryTextListener {
 
-    private lateinit var binding: ActivityMainBinding
-    private var mPresenter: MainActivityContract.Presenter? = null
-    private var isSearching = false
+  companion object {
+    private val TAG = MainActivity::class.java.simpleName
+  }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+  private lateinit var binding: ActivityMainBinding
+  private var mPresenter: MainActivityContract.Presenter? = null
+  private var isSearching = false
 
-        // init view
-        initView()
-    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        val inflater = menuInflater
-        inflater.inflate(R.menu.options_menu, menu)
+    // init view
+    initView()
+  }
 
-        // Associate searchable configuration with the SearchView
-        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
-        val searchView = menu?.findItem(R.id.search)?.actionView as SearchView
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    val inflater = menuInflater
+    inflater.inflate(R.menu.options_menu, menu)
 
-        // show search complete button
-        searchView.isSubmitButtonEnabled = true
-        searchView.setOnQueryTextListener(this)
-        return true
-    }
+    // Associate searchable configuration with the SearchView
+    val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
+    val searchView = menu?.findItem(R.id.search)?.actionView as SearchView
+    searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
 
-    private fun initView() {
-        // TODO error handling, e.g., no network
-        mPresenter = MainActivityPresenter(this)
-        val fragmentList: MutableList<Fragment> = ArrayList()
-        fragmentList.add(ImageListFragment.newInstance())
-        fragmentList.add(ImageGridFragment.newInstance())
+    // show search complete button
+    searchView.isSubmitButtonEnabled = true
+    searchView.setOnQueryTextListener(this)
+    return true
+  }
 
-        // setup ViewPager
-        binding.viewPager.adapter = ViewPagerAdapter(
-            supportFragmentManager,
-            fragmentList,
-            lifecycle
-        )
+  private fun initView() {
+    // TODO error handling, e.g., no network
+    mPresenter = MainActivityPresenter(this)
+    val fragmentList: MutableList<Fragment> = ArrayList()
+    fragmentList.add(ImageListFragment.newInstance())
+    fragmentList.add(ImageGridFragment.newInstance())
 
-        // setup TabLayout
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            tab.text = getText(if (position == 0) R.string.tab_title_list else R.string.tab_title_grid)
-        }.attach()
-    }
+    // setup ViewPager
+    binding.viewPager.adapter = ViewPagerAdapter(
+      supportFragmentManager,
+      fragmentList,
+      lifecycle
+    )
 
-    private fun showErrorDialog(errorMsg: String?) {
-        if (this.isFinishing.not()) {
-            // TODO should create a custom dialog helper class
-            AlertDialog.Builder(this)
-                .setMessage(errorMsg)
-                .setPositiveButton(R.string.ok) { _, _ ->
-                    // do nothing
-                }.create().show()
+    // setup TabLayout
+    TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+      tab.text = getText(if (position == 0) R.string.tab_title_list else R.string.tab_title_grid)
+    }.attach()
+  }
+
+  private fun showErrorDialog(errorMsg: String?) {
+    if (this.isFinishing.not()) {
+      // TODO should create a custom dialog helper class
+      AlertDialog.Builder(this)
+        .setMessage(errorMsg)
+        .setPositiveButton(R.string.ok) { _, _ ->
+          // do nothing
         }
+        .create()
+        .show()
     }
+  }
 
-    override fun searchStart() {
-        isSearching = true
-        binding.progressBar.visibility = View.VISIBLE
-    }
+  override fun searchStart() {
+    isSearching = true
+    binding.progressBar.visibility = View.VISIBLE
+  }
 
-    override fun searchFinished(isSuccess: Boolean, @StringRes errorMsg: Int) {
-        Log.d(TAG, "searchFinished: $isSuccess")
-        isSearching = false
-        binding.progressBar.visibility = View.INVISIBLE
-        if (isSuccess.not()) {
-            showErrorDialog(
-                MainApplication.getInstance()?.getString(errorMsg)
-            )
-        }
+  override fun searchFinished(isSuccess: Boolean, @StringRes errorMsg: Int) {
+    Log.d(TAG, "searchFinished: $isSuccess")
+    isSearching = false
+    binding.progressBar.visibility = View.INVISIBLE
+    if (isSuccess.not()) {
+      showErrorDialog(
+        MainApplication.getInstance()?.getString(errorMsg)
+      )
     }
+  }
 
-    override fun onQueryTextSubmit(query: String): Boolean {
-        if (isSearching) {
-            return true
-        }
-        Log.d(TAG, "Submit search query")
-        mPresenter?.search(query)
-        return true
+  override fun onQueryTextSubmit(query: String): Boolean {
+    if (isSearching) {
+      return true
     }
+    Log.d(TAG, "Submit search query")
+    mPresenter?.search(query)
+    return true
+  }
 
-    override fun onQueryTextChange(newText: String?): Boolean {
-        // TODO
-        return false
-    }
-
-    companion object {
-        private val TAG = MainActivity::class.java.simpleName
-    }
+  override fun onQueryTextChange(newText: String?): Boolean {
+    // TODO
+    return false
+  }
 }

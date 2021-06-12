@@ -37,7 +37,7 @@ package com.jajinba.pixabaydemo.model
 }
  */
 data class PixabayResponseObject(
-    val total: Int = 0,
-    val totalHits: Int = 0,
-    val hits: MutableList<PixabayImageObject>? = null
+  val total: Int = 0,
+  val totalHits: Int = 0,
+  val hits: MutableList<PixabayImageObject>? = null
 )

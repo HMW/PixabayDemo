@@ -7,18 +7,18 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.jajinba.pixabaydemo.utils.ArrayUtils
 
 class ViewPagerAdapter(
-    fm: FragmentManager,
-    private val mFragmentList: MutableList<Fragment>,
-    lifecycle: Lifecycle
+  fm: FragmentManager,
+  private val mFragmentList: MutableList<Fragment>,
+  lifecycle: Lifecycle
 ) : FragmentStateAdapter(fm, lifecycle) {
 
-    override fun getItemCount(): Int {
-        return ArrayUtils.getLengthSafe(mFragmentList)
-    }
+  override fun getItemCount(): Int {
+    return ArrayUtils.getLengthSafe(mFragmentList)
+  }
 
-    override fun createFragment(position: Int): Fragment {
-        return mFragmentList[position]
-    }
+  override fun createFragment(position: Int): Fragment {
+    return mFragmentList[position]
+  }
 
 
 }

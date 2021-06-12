@@ -2,26 +2,22 @@ package com.jajinba.pixabaydemo.view.fragment
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.jajinba.pixabaydemo.adapter.ImageListAdapter
 
 class ImageGridFragment : ListFragment() {
-    private val mAdapter = ImageListAdapter(this@ImageGridFragment)
-    override fun getAdapter(): ImageListAdapter {
-        return mAdapter
-    }
 
-    override fun getLayoutManager(): RecyclerView.LayoutManager {
-        return StaggeredGridLayoutManager(SPAN_COUNT, StaggeredGridLayoutManager.VERTICAL)
+  companion object {
+    private const val SPAN_COUNT = 2
+    fun newInstance(): ImageGridFragment {
+      return ImageGridFragment()
     }
+  }
 
-    override fun onFailed(errorMsg: Int) {
-        // TODO
-    }
+  override fun getLayoutManager(): RecyclerView.LayoutManager {
+    return StaggeredGridLayoutManager(SPAN_COUNT, StaggeredGridLayoutManager.VERTICAL)
+  }
 
-    companion object {
-        private const val SPAN_COUNT = 2
-        fun newInstance(): ImageGridFragment {
-            return ImageGridFragment()
-        }
-    }
+  override fun onFailed(errorMsg: Int) {
+    // TODO
+  }
+
 }

@@ -7,6 +7,6 @@ import retrofit2.http.POST
 import retrofit2.http.QueryMap
 
 internal interface ApiService {
-    @POST("api")
-    fun searchImages(@QueryMap params: MutableMap<String?, String?>?): Observable<Response<PixabayResponseObject?>?>?
+  @POST("api")
+  fun searchImages(@QueryMap params: MutableMap<String?, String?>?): Observable<Response<PixabayResponseObject?>?>?
 }

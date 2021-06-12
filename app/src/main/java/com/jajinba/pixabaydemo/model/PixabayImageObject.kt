@@ -28,41 +28,41 @@ import com.google.gson.annotations.SerializedName
 }
  */
 data class PixabayImageObject(
-    val id: Int = 0,
+  val id: Int = 0,
 
-    @SerializedName("pageURL")
-    val pageUrl: String? = null,
-    val type: String? = null,
-    val tags: String? = null,
+  @SerializedName("pageURL")
+  val pageUrl: String? = null,
+  val type: String? = null,
+  val tags: String? = null,
 
-    @SerializedName("previewURL")
-    val previewUrl: String? = null,
+  @SerializedName("previewURL")
+  val previewUrl: String? = null,
 
-    @SerializedName("previewWidth")
-    val previewWidth: Int = 0,
+  @SerializedName("previewWidth")
+  val previewWidth: Int = 0,
 
-    @SerializedName("previewHeight")
-    val previewHeight: Int = 0,
+  @SerializedName("previewHeight")
+  val previewHeight: Int = 0,
 
-    @SerializedName("webformatURL")
-    val webformatUrl: String? = null,
-    val webformatWidth: Int = 0,
-    val webformatHeight: Int = 0,
-    val imageWidth: Int = 0,
-    val imageHeight: Int = 0,
-    val imageSize: Int = 0,
-    val views: Int = 0,
-    val downloads: Int = 0,
-    val favorites: Int = 0,
-    val likes: Int = 0,
-    val comments: Int = 0,
+  @SerializedName("webformatURL")
+  val webformatUrl: String? = null,
+  val webformatWidth: Int = 0,
+  val webformatHeight: Int = 0,
+  val imageWidth: Int = 0,
+  val imageHeight: Int = 0,
+  val imageSize: Int = 0,
+  val views: Int = 0,
+  val downloads: Int = 0,
+  val favorites: Int = 0,
+  val likes: Int = 0,
+  val comments: Int = 0,
 
-    @SerializedName("user_id")
-    val userId: Int = 0,
+  @SerializedName("user_id")
+  val userId: Int = 0,
 
-    @SerializedName("user")
-    val userName: String? = null,
+  @SerializedName("user")
+  val userName: String? = null,
 
-    @SerializedName("userImageURL")
-    val userImageUrl: String? = null
+  @SerializedName("userImageURL")
+  val userImageUrl: String? = null
 )
