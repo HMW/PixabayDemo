@@ -57,16 +57,18 @@ class ImageListAdapter(private val context: Context?,
       holder.getView<View?>(R.id.load_more_textview)?.setOnClickListener {
         holder.setVisibility(R.id.load_more_textview, View.GONE)
         holder.setVisibility(R.id.progressBar, View.VISIBLE)
-        callback?.loadMore()
+//        callback?.loadMore()
       }
     }
   }
 
   override fun getItemCount(): Int {
     // +1 for bottom loading item
-    return if (ArrayUtils.getLengthSafe(mImageList) % Constants.IMAGE_PER_PAGE == 0) ArrayUtils.getLengthSafe(
-      mImageList
-    ) + 1 else ArrayUtils.getLengthSafe(mImageList)
+    // TODO should check can load more image from API result
+    return if (ArrayUtils.getLengthSafe(mImageList) % Constants.IMAGE_PER_PAGE == 0)
+      ArrayUtils.getLengthSafe(mImageList) + 1
+    else
+      ArrayUtils.getLengthSafe(mImageList)
   }
 
   override fun getItemViewType(position: Int): Int {
@@ -74,8 +76,9 @@ class ImageListAdapter(private val context: Context?,
   }
 
   fun updateList(imageList: MutableList<PixabayImageObject>) {
-    mImageList.clear()
     Log.d(ImageListAdapter::class.java.simpleName, "updateList with ${imageList.size} images")
+    mImageList.clear()
     mImageList.addAll(imageList)
+    Log.d(ImageListAdapter::class.java.simpleName, "${mImageList.size} images after update")
   }
 }

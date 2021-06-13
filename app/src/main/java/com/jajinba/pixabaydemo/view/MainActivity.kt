@@ -5,32 +5,33 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.View
-import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import com.google.android.material.tabs.TabLayoutMediator
-import com.jajinba.pixabaydemo.MainApplication
 import com.jajinba.pixabaydemo.R
 import com.jajinba.pixabaydemo.adapter.ViewPagerAdapter
-import com.jajinba.pixabaydemo.contract.MainActivityContract
 import com.jajinba.pixabaydemo.databinding.ActivityMainBinding
-import com.jajinba.pixabaydemo.presenter.MainActivityPresenter
+import com.jajinba.pixabaydemo.utils.InjectUtils
 import com.jajinba.pixabaydemo.view.fragment.ImageGridFragment
 import com.jajinba.pixabaydemo.view.fragment.ImageListFragment
 import java.util.*
 
-class MainActivity : AppCompatActivity(), MainActivityContract.View,
-  SearchView.OnQueryTextListener {
+class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
 
   companion object {
     private val TAG = MainActivity::class.java.simpleName
   }
 
   private lateinit var binding: ActivityMainBinding
-  private var mPresenter: MainActivityContract.Presenter? = null
-  private var isSearching = false
+
+  private val imageDataSource = InjectUtils.providerImagesDataSource()
+  private val isLoading: LiveData<Boolean>
+    get() = imageDataSource.isLoading
+  private val isLoadSuccess: LiveData<Boolean>
+    get() = imageDataSource.isLoadSuccess
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -58,10 +59,9 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View,
 
   private fun initView() {
     // TODO error handling, e.g., no network
-    mPresenter = MainActivityPresenter(this)
     val fragmentList: MutableList<Fragment> = ArrayList()
-    fragmentList.add(ImageListFragment.newInstance())
-    fragmentList.add(ImageGridFragment.newInstance())
+    fragmentList.add(ImageListFragment.newInstance(imageDataSource))
+    fragmentList.add(ImageGridFragment.newInstance(imageDataSource))
 
     // setup ViewPager
     binding.viewPager.adapter = ViewPagerAdapter(
@@ -69,6 +69,15 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View,
       fragmentList,
       lifecycle
     )
+
+    isLoading.observe(this) {
+      binding.progressBar.visibility = if (it) View.VISIBLE else View.INVISIBLE
+    }
+    isLoadSuccess.observe(this) {
+      if (it.not()) {
+        showErrorDialog(imageDataSource.errorMsg)
+      }
+    }
 
     // setup TabLayout
     TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
@@ -89,28 +98,9 @@ class MainActivity : AppCompatActivity(), MainActivityContract.View,
     }
   }
 
-  override fun searchStart() {
-    isSearching = true
-    binding.progressBar.visibility = View.VISIBLE
-  }
-
-  override fun searchFinished(isSuccess: Boolean, @StringRes errorMsg: Int) {
-    Log.d(TAG, "searchFinished: $isSuccess")
-    isSearching = false
-    binding.progressBar.visibility = View.INVISIBLE
-    if (isSuccess.not()) {
-      showErrorDialog(
-        MainApplication.getInstance()?.getString(errorMsg)
-      )
-    }
-  }
-
   override fun onQueryTextSubmit(query: String): Boolean {
-    if (isSearching) {
-      return true
-    }
     Log.d(TAG, "Submit search query")
-    mPresenter?.search(query)
+    imageDataSource.loadImages(query)
     return true
   }
 

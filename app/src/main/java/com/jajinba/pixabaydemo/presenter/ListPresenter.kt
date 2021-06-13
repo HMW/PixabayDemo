@@ -18,17 +18,18 @@ class ListPresenter(private val mView: ListContract.View) : ListContract.Present
     ImageManager.getInstance().setCallback(object : ImageManager.Callback {
       override fun onSuccess(keyword: String, imageList: MutableList<PixabayImageObject>) {
         Log.d(TAG, "onSuccess, image count:" + ArrayUtils.getLengthSafe(imageList))
-        mView.searchFinished(keyword, imageList)
+//        mView.searchFinished(keyword, imageList)
       }
 
       override fun onFailed(errorMsg: Int) {
         Log.d(TAG, "onFailed")
-        mView.onFailed(errorMsg)
+//        mView.onFailed(errorMsg)
       }
     })
   }
 
   override fun getImageList(keyword: String): MutableList<PixabayImageObject> {
+    Log.d(TAG, "mvp] getImageList")
     return if (TextUtils.isEmpty(keyword)) {
       ArrayList()
     } else {
@@ -37,12 +38,14 @@ class ListPresenter(private val mView: ListContract.View) : ListContract.Present
   }
 
   override fun loadMore(keyword: String) {
+    Log.d(TAG, "mvp] loadMore")
     Log.d(TAG, "Load more images of $keyword")
     val searchPage: Int = ImageManager.getInstance().previousLoadedPage(keyword) + 1
-    ImageManager.getInstance().searchImage(keyword, searchPage)
+//    ImageManager.getInstance().searchImage(keyword, searchPage)
   }
 
   override fun getLastOperation(): String {
+    Log.d(TAG, "mvp] getLastOperation")
     return ImageManager.getInstance().getLastOperation() ?: ""
   }
 }

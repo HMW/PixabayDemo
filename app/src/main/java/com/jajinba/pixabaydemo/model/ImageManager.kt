@@ -104,6 +104,7 @@ class ImageManager private constructor() {
   ///////////////////////////// API relatives /////////////////////////////
   @JvmOverloads
   fun searchImage(keyword: String, page: Int = 1) {
+    Log.d(TAG, "searchImage, $keyword - $page")
     if (hasKeywordSearchBefore(keyword) && mKeywordToLoadedPageMap[keyword] == page) {
       Log.d(TAG, "Keyword $keyword has searched before, use previous list instead")
       setCurrentKeyword(keyword)

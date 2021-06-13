@@ -5,18 +5,18 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.jajinba.pixabaydemo.Constants
 import com.jajinba.pixabaydemo.R
 import com.jajinba.pixabaydemo.adapter.ImageListAdapter
 import com.jajinba.pixabaydemo.contract.ListContract
 import com.jajinba.pixabaydemo.databinding.FragmentListBinding
 import com.jajinba.pixabaydemo.model.ImageManager
+import com.jajinba.pixabaydemo.model.ImagesSearchDataSource
 import com.jajinba.pixabaydemo.model.PixabayImageObject
-import com.jajinba.pixabaydemo.presenter.ListPresenter
 import com.jajinba.pixabaydemo.utils.ArrayUtils
 import java.util.*
 
-abstract class ListFragment : BaseFragment(R.layout.fragment_list), ListContract.View {
+abstract class ListFragment(private val imageSearchDataSource: ImagesSearchDataSource)
+  : BaseFragment(R.layout.fragment_list), ListContract.View {
 
   companion object {
     private val TAG = ListFragment::class.java.simpleName
@@ -24,18 +24,20 @@ abstract class ListFragment : BaseFragment(R.layout.fragment_list), ListContract
   }
 
   private var binding: FragmentListBinding? = null
-  private lateinit var mPresenter: ListPresenter
   private lateinit var adapter: ImageListAdapter
   // cache keyword to restore image list after screen rotated
   private var mCurrentKeyword: String? = null
 
   private val adapterCallback = object: ImageListAdapter.Callback {
     override fun loadMore() {
-      mCurrentKeyword?.let { mPresenter.loadMore(it) }
+      mCurrentKeyword?.let {
+//        imageSearchDataSource.loadImages(it, imageSearchDataSource.page.value ?: 1)
+      }
     }
   }
 
   protected abstract fun getLayoutManager(): RecyclerView.LayoutManager?
+  abstract fun setImageList(keyword: String, imageList: MutableList<PixabayImageObject>)
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
@@ -47,13 +49,17 @@ abstract class ListFragment : BaseFragment(R.layout.fragment_list), ListContract
       recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
           super.onScrolled(recyclerView, dx, dy)
-          if (recyclerView.canScrollVertically(1).not()) {
-            mCurrentKeyword?.let { mPresenter.loadMore(it) }
+          if (adapter.itemCount > 0 && recyclerView.canScrollVertically(1).not()) {
+            mCurrentKeyword?.let {
+              Log.d(TAG, "onScrolled, page = ${imageSearchDataSource.page.value}")
+              imageSearchDataSource.loadImages(
+                it,
+                (imageSearchDataSource.page.value?.plus(1)) ?: 1)
+            }
           }
         }
       })
     }
-    mPresenter = ListPresenter(this)
 
     // restore state before rotation
     if (savedInstanceState != null) {
@@ -65,7 +71,14 @@ abstract class ListFragment : BaseFragment(R.layout.fragment_list), ListContract
 
       // restore ui
       mCurrentKeyword?.let {
-        searchFinished(it, mPresenter.getImageList(it))
+        searchFinished(it, ImageManager.getInstance().getImageListWithKeyword(it))
+      }
+    }
+
+    imageSearchDataSource.imageList.observe(viewLifecycleOwner) { imageList ->
+      Log.d(TAG, "fragment observer - image list updated")
+      imageSearchDataSource.keyword.value?.let { keyword ->
+        listUpdated(keyword, imageList)
       }
     }
   }
@@ -84,10 +97,18 @@ abstract class ListFragment : BaseFragment(R.layout.fragment_list), ListContract
     Log.d(TAG, "Receive search finished callback")
 
     // FIXME check is attached?
+//    listUpdated(keyword, imageList)
+  }
+
+  private fun listUpdated(keyword: String, imageList: MutableList<PixabayImageObject>) {
+    Log.d(TAG, "Receive search finished callback")
+
+    // FIXME check is attached?
     if (isFragmentValid().not()) {
       return
     }
     Log.d(TAG, ArrayUtils.getLengthSafe(imageList).toString() + " image received")
+//    val isKeywordChanged = keyword.equals(mCurrentKeyword)
     mCurrentKeyword = keyword
     if (TextUtils.isEmpty(keyword)) {
       resetUi()
@@ -105,27 +126,22 @@ abstract class ListFragment : BaseFragment(R.layout.fragment_list), ListContract
 
   private fun updateUi(imageList: MutableList<PixabayImageObject>) {
     binding?.apply {
-      tvEmptyState.visibility = if (imageList.isEmpty()) View.VISIBLE else View.GONE
-      recyclerView.visibility = if (imageList.isNotEmpty()) View.VISIBLE else View.GONE
+      val isListEmpty = imageList.isEmpty()
+      tvEmptyState.visibility = if (isListEmpty) View.VISIBLE else View.GONE
+      recyclerView.visibility = if (isListEmpty) View.GONE else View.VISIBLE
     }
-
-    @ImageManager.Operation val lastOperation = mPresenter.getLastOperation()
-    Log.d(TAG, "hm] update ui state with operation: $lastOperation, image count: ${imageList.size}")
-    Log.d(TAG, "hm] empty view visible: ${(binding?.tvEmptyState?.visibility == View.VISIBLE)}")
-    Log.d(TAG, "hm] recycler view visible: ${(binding?.recyclerView?.visibility == View.VISIBLE)}")
-
-    adapter.updateList(imageList)
-    if (ImageManager.NEW_SEARCH == lastOperation) {
+    if (adapter.itemCount == 1) {
+      adapter.updateList(imageList)
       adapter.notifyDataSetChanged()
-    } else if (ImageManager.LOAD_MORE == lastOperation) {
-      val oldImageCount =
-        if (ArrayUtils.getLengthSafe(imageList) % Constants.IMAGE_PER_PAGE == 0) ArrayUtils.getLengthSafe(
-          imageList
-        ) - Constants.IMAGE_PER_PAGE else ArrayUtils.getLengthSafe(imageList) % Constants.IMAGE_PER_PAGE
-      adapter.notifyItemRangeInserted(
-        oldImageCount + 1,
-        ArrayUtils.getLengthSafe(imageList) - oldImageCount
-      )
+    } else {
+      val oldImageCount = if (adapter.itemCount > 0) adapter.itemCount - 1 else adapter.itemCount
+      adapter.updateList(imageList)
+      binding?.recyclerView?.post {
+        adapter.notifyItemRangeInserted(
+          oldImageCount,
+          ArrayUtils.getLengthSafe(imageList) - oldImageCount
+        )
+      }
     }
   }
 }
