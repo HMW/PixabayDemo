@@ -10,7 +10,7 @@ static def getApiKey() {
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "26.0.3"
+    buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "com.jajinba.pixabaydemo"
         minSdkVersion 21
