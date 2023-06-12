@@ -52,7 +52,7 @@ class RemotePixabayDatasource : ImageDataSource {
               else -> {
                 throw PixabayGeneralException(
                   it.code(),
-                  it.response()?.errorBody()?.string() ?: it.message()
+                  it.response()?.errorBody()?.string() ?: it.message() ?: "Get Image failed"
                 )
               }
             }
